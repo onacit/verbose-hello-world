@@ -26,6 +26,26 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.exceptions.base.MockitoException;
 
+import java.io.DataOutput;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.net.Socket;
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+
+import static com.github.jinahya.hello.HelloWorld.BYTES;
+import static com.github.jinahya.hello.ValidationProxy.newValidationProxy;
+import static java.nio.ByteBuffer.allocate;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.spy;
@@ -63,7 +83,8 @@ public class HelloWorldTest {
      */
     @DisplayName("set(array) throws NullPointerException when array is null")
     @Test
-    public void setArray_NullPointerException_ArrayIsNull() {
+    public void assertSetThrowsNullPointerExceptionWhenArrayIsNull() {
+        assertThrows(NullPointerException.class, () -> helloWorld.set(null));
     }
 
     /**
