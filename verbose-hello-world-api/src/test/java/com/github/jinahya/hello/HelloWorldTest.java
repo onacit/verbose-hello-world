@@ -22,6 +22,9 @@ package com.github.jinahya.hello;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Spy;
+import org.mockito.exceptions.base.MockitoException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -33,21 +36,231 @@ import static org.mockito.Mockito.when;
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
-@Slf4j
-abstract class HelloWorldTest {
+@ExtendWith({MockitoExtension.class})
+public class HelloWorldTest {
 
-//    /**
-//     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} instance just to return given {@code
-//     * array} argument.
-//     */
-//    @BeforeEach
-//    private void stubSetArrayIndexToReturnGivenArray() {
-//        when(helloWorld.set(any(byte[].class), anyInt()))  // <1>
-//                .thenAnswer(i -> i.getArgument(0, byte[].class)); // <2>
-//    }
+    // ----------------------------------------------------------------------------------------------------------- BYTES
 
     /**
-     * A spy instance of {@link HelloWorld} interface.
+     * Asserts the value of {@link HelloWorld#BYTES} constant equals to the actual number of bytes of "{@code hello,
+     * world}" string encoded in {@link StandardCharsets#US_ASCII US-ASCII} character set.
+     *
+     * @see String#getBytes(Charset)
+     * @see StandardCharsets#US_ASCII
      */
-    protected final HelloWorld helloWorld = spy(HelloWorld.class);
+    @DisplayName("BYTES equals to the actual number of \"hello, world\" bytes")
+    @Test
+    void assertHelloWorldBytesEqualsToActualNumberOfHelloWorldBytes() {
+        final int expected = "hello, world".getBytes(US_ASCII).length;
+        Assertions.assertEquals(expected, BYTES);
+    }
+
+    // ------------------------------------------------------------------------------------------------------- set([B)[B
+
+    /**
+     * Asserts {@link HelloWorld#set(byte[])} method throws a {@link NullPointerException} when the {@code array}
+     * argument is {@code null}.
+     */
+    @DisplayName("set(array) throws NullPointerException when array is null")
+    @Test
+    public void setArray_NullPointerException_ArrayIsNull() {
+    }
+
+    /**
+     * Asserts {@link HelloWorld#set(byte[])} method throws an {@link IndexOutOfBoundsException} when {@code
+     * array.length} is less than {@link HelloWorld#BYTES}.
+     */
+    @DisplayName("set(array) throws IndexOutOfBoundsException when array.length is less than BYTES")
+    @Test
+    public void setArray_IndexOutOfBoundsException_ArrayLengthIsLessThanBYTES() {
+    }
+
+    /**
+     * Asserts {@link HelloWorld#set(byte[])} method invokes {@link HelloWorld#set(byte[], int)} method with specified
+     * {@code array} and {@code 0} and returns the result.
+     */
+    @DisplayName("set(array) invokes set(array, 0)")
+    @Test
+    public void setArray_InvokesSetArrayWithArrayAndZero() {
+    }
+
+    /**
+     * Asserts {@link HelloWorld#set(byte[])} method returns specified {@code array} argument.
+     */
+    @DisplayName("set(array) returns array")
+    @Test
+    public void assertSetArrayReturnsArray() {
+        // TODO: implement!
+    }
+
+    // ------------------------------------------------------------- write(Ljava.io.OutputStream;)Ljava.io.OutputStream;
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream) write(stream)} method throws a {@link NullPointerException} when
+     * {@code stream} argument is {@code null}.
+     */
+    @DisplayName("write(stream) throws NullPointerException when stream is null")
+    @Test
+    public void writeStream_NullPointerException_StreamIsNull() {
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream) write(stream)} method invokes {@link HelloWorld#set(byte[])
+     * set(byte[])} method with an array of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the
+     * array to specified {@code stream}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(stream) invokes set(array) and writes the array to the stream")
+    @Test
+    public void writeStream_InvokeSetArrayAndWriteArrayToStream_() throws IOException {
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream) write(stream)} method returns specified {@code stream}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(stream) returns the stream")
+    @Test
+    public void writeStream_ReturnStream_() throws IOException {
+    }
+
+    // ----------------------------------------------------------------------------- write(Ljava.io.File;)Ljava.io.File;
+
+    /**
+     * Asserts {@link HelloWorld#append(File) append(file)} method throws a {@link NullPointerException} when {@code
+     * file} argument is {@code null}.
+     */
+    @DisplayName("append(file) throws a NullPointerException when the file is null")
+    @Test
+    public void appendFile_NullPointerException_FileIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.append((File) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#append(File) append(file)} method invokes {@link HelloWorld#write(OutputStream)
+     * write(stream)} method.
+     *
+     * @param tempDir a temporary directory to test with.
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("append(file) invokes write(stream)")
+    @Test
+    public void appendFile_InvokeWriteStream_(final @TempDir File tempDir) throws IOException {
+        final File file = java.io.File.createTempFile("tmp", null, tempDir);
+    }
+
+    /**
+     * Asserts {@link HelloWorld#append(File) append(file)} method returns given file.
+     *
+     * @param tempDir a temporary directory to test with.
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("append(file) returns given file")
+    @Test
+    public void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
+        final File file = java.io.File.createTempFile("tmp", null, tempDir);
+    }
+
+    // ------------------------------------------------------------------------ send(Ljava.net.Socket;)Ljava.net.Socket;
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket) send(socket)} method throws a {@link NullPointerException} when the {@code
+     * socket} argument is {@code null}.
+     */
+    @DisplayName("send(socket) throws NullPointerException when socket is null")
+    @Test
+    public void sendSocket_NullPointerException_SocketIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.send((Socket) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method invokes the {@link HelloWorld#write(OutputStream)} method with
+     * what specified socket's {@link Socket#getOutputStream() outputStream}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("send(socket) invokes write(socket.outputStream)")
+    @Test
+    public void sendSocket_InvokeWriteStreamWithSocketOutputStream_() throws IOException {
+        // TODO: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method returns the specified socket.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("send(socket) returns socket")
+    @Test
+    public void sendSocket_ReturnSocket_() throws IOException {
+        // TODO: implement!
+    }
+
+    // ----------------------------------------------------------------- write(Ljava.io.DataOutput;)Ljava.io.DataOutput;
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method throws a {@link NullPointerException} when {@code data}
+     * argument is {@code null}.
+     */
+    @DisplayName("write(data) method throws NullPointerException when data is null")
+    @Test
+    public void writeData_NullPointerException_DataIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((DataOutput) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method invokes {@link HelloWorld#set(byte[])} method with an array
+     * of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the array to specified data output.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(data) invokes set(array) and writes the array to data")
+    @Test
+    public void writeData_InvokeSetArrayWriteArrayToData_() throws IOException {
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method returns given data output.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(data) returns data")
+    @Test
+    public void writeData_ReturnData_() throws IOException {
+        // TODO: implement!
+    }
+
+    // ----------------------------------------------------- write(Ljava.io.RandomAccessFile;)Ljava.io.RandomAccessFile;
+
+    /**
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} method throws a {@link NullPointerException} when {@code file}
+     * argument is {@code null}.
+     */
+    @DisplayName("write(file) throws NullPointerException when file is null")
+    @Test
+    public void writeFile_NullPointerException_FileIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} invokes {@link HelloWorld#set(byte[])} method with an array of
+     * {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the array to specified random access file.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(file) invokes set(array) method and writes the array to file")
+    @Test
+    public void writeFile_InvokeSetArrayWriteArrayToFiled_() throws IOException {
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    @Test
+    public void assertSetThrowsNullPointerExceptionWhenArrayIsNull() {
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    @Spy
+    private HelloWorld helloWorld;
 }

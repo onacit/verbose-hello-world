@@ -1,45 +1,16 @@
 package com.github.jinahya.hello;
 
-/*-
- * #%L
- * verbose-hello-world-api
- * %%
- * Copyright (C) 2018 - 2019 Jinahya, Inc.
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.net.Socket;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.util.RandomAccess;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import static java.nio.ByteBuffer.allocate;
+import java.nio.file.StandardOpenOption;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -272,61 +243,144 @@ public interface HelloWorld {
     }
 
     /**
-     * Writes, synchronously, the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
+     * Sends <a href="#hello-world-bytes">hello-world-bytes</a> through specified socket channel and returns the socket
+     * channel.
+     * <p>
+     * This method invokes {@link #write(WritableByteChannel)} method with specified socket channel and returns the
+     * result.
      *
-     * @param channel the channel to which bytes are written.
-     * @param <T>     channel type parameter
-     * @return A future representing the result of the operation.
-     * @throws InterruptedException if interrupted while working.
-     * @throws ExecutionException   if failed to execute.
-     * @implSpec The implementation in this class invokes {@link #put(ByteBuffer)} method with a byte buffer of {@value
-     * com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the buffer to specified channel using {@link
-     * AsynchronousByteChannel#write(ByteBuffer)} method.
+     * @param socket the socket channel to which bytes are sent.
+     * @param <T>    socket channel type parameter
+     * @return given {@code socket}.
+     * @throws IOException if an I/O error occurs.
+     * @see #write(WritableByteChannel)
+     * @deprecated Use {@link #write(WritableByteChannel)}.
      */
-    default <T extends AsynchronousByteChannel> T writeSync(final T channel)
-            throws InterruptedException, ExecutionException {
+    byte[] set(byte[] array, int index);
+
+    /**
+     * Sets {@value SIZE} bytes of {@code hello, world} string on given array starting at {@code 0} index.
+     *
+     * @param array the array to which {@code hello, world} bytes are set.
+     * @return given array.
+     * @throws NullPointerException     if {@code array} is {@code null}
+     * @throws IllegalArgumentException if {@code array.length} is less than {@value SIZE}
+     * @see #set(byte[], int)
+     */
+    default byte[] set(final byte[] array) {
+        if (array == null) {
+            throw new NullPointerException("array is null");
+        }
+        if (array.length < SIZE) {
+            throw new IllegalArgumentException("array.length(" + array.length + ") < " + SIZE);
+        }
+        final int index = 0;
+        return set(array, index);
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Writes {@value #SIZE} bytes of {@code hello, world} on specified output stream and returns the output stream.
+     *
+     * @param stream the output stream on which bytes are written
+     * @param <T>    output stream type parameter
+     * @return given output stream
+     * @throws IOException if an I/O error occurs.
+     */
+    default <T extends OutputStream> T write(final T stream) throws IOException {
+        if (stream == null) {
+            throw new NullPointerException("stream is null");
+        }
+        final byte[] array = new byte[SIZE];
+        final int index = 0;
+        set(array, index);
+        stream.write(array);
+        return stream;
+    }
+
+    default <T extends File> T write(final T file) throws IOException {
+        if (file == null) {
+            throw new NullPointerException("file is null");
+        }
+        final OutputStream stream = new FileOutputStream(file);
+        try {
+            write(stream);
+            stream.flush();
+        } finally {
+            stream.close();
+        }
+        return file;
+    }
+
+    default <T extends Socket> T send(final T socket) throws IOException {
+        if (socket == null) {
+            throw new NullPointerException("socket is null");
+        }
+        final OutputStream stream = socket.getOutputStream();
+        write(stream);
+        return socket;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    default <T extends ByteBuffer> T put(final T buffer) {
+        if (buffer == null) {
+            throw new NullPointerException("buffer is null");
+        }
+        if (buffer.remaining() < SIZE) {
+            throw new IllegalArgumentException("buffer.remaining(" + buffer.remaining() + " < " + SIZE);
+        }
+        if (buffer.hasArray()) {
+            set(buffer.array(), buffer.arrayOffset());
+            buffer.position(buffer.position() + SIZE);
+            return buffer;
+        }
+        final byte[] array = new byte[SIZE];
+        set(array, 0);
+        buffer.put(array);
+        return buffer;
+    }
+
+    default <T extends WritableByteChannel> T write(final T channel) throws IOException {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
-        final ByteBuffer buffer = allocate(BYTES);
+        if (!channel.isOpen()) {
+            throw new IllegalArgumentException("channel is not open");
+        }
+        final ByteBuffer buffer = ByteBuffer.allocate(SIZE);
+        assert buffer.position() == 0;
+        assert buffer.remaining() == SIZE;
         put(buffer);
+        assert buffer.position() == SIZE;
+        assert !buffer.hasRemaining();
         buffer.flip();
-        // TODO: implement!
+        assert buffer.position() == 0;
+        assert buffer.limit() == buffer.capacity();
+        while (buffer.hasRemaining()) {
+            channel.write(buffer);
+        }
         return channel;
     }
 
-    /**
-     * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
-     *
-     * @param channel the channel to which bytes are written.
-     * @return A future representing the result of the operation.
-     */
-    default Future<Void> write(final AsynchronousByteChannel channel) {
-        if (channel == null) {
-            throw new NullPointerException("channel is null");
+    default <T extends Path> T write(final T path) throws IOException {
+        if (path == null) {
+            throw new NullPointerException("path is null");
         }
-        final ByteBuffer buffer = allocate(BYTES);
-        put(buffer);
-        buffer.flip();
-        // TODO: implement!
-        return null;
+        final WritableByteChannel channel = FileChannel.open(
+                path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.DSYNC);
+        try {
+            write(channel);
+        } finally {
+            channel.close();
+        }
+        return path;
     }
 
-    /**
-     * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
-     *
-     * @param channel the channel to which bytes are written.
-     * @param <T>     channel type parameter
-     * @return a completable future.
-     * @see #write(AsynchronousByteChannel)
-     */
-    default <T extends AsynchronousByteChannel> CompletableFuture<T> writeCompletable(final T channel) {
-        if (channel == null) {
-            throw new NullPointerException("channel is null");
+    default <T extends SocketChannel> T send(final T socket) throws IOException {
+        if (socket == null) {
+            throw new NullPointerException("socket is null");
         }
-        final ByteBuffer buffer = allocate(BYTES);
-        put(buffer);
-        buffer.flip();
-        return null;
+        return write(socket);
     }
 }
