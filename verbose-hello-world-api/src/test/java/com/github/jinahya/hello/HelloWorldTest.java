@@ -26,10 +26,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.exceptions.base.MockitoException;
 
 import java.io.DataOutput;
 import java.io.File;
@@ -62,9 +60,7 @@ import static org.mockito.quality.Strictness.LENIENT;
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
-@MockitoSettings(strictness = LENIENT)
 @ExtendWith({MockitoExtension.class})
-@Slf4j
 public class HelloWorldTest {
 
     // ----------------------------------------------------------------------------------------------------------- BYTES
@@ -283,227 +279,12 @@ public class HelloWorldTest {
     public void writeFile_InvokeSetArrayWriteArrayToFiled_() throws IOException {
     }
 
-    /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} method returns specified {@code file}.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(file) returns file")
+    // -----------------------------------------------------------------------------------------------------------------
     @Test
-    void writeFile_ReturnFile_() throws IOException {
-    }
-
-    // ----------------------------------------------------------------- put(Ljava.nio.ByteBuffer;)Ljava.nio.ByteBuffer;
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@link NullPointerException} when {@code buffer}
-     * argument is {@code null}.
-     */
-    @DisplayName("put(buffer) throws NullPointerException when buffer is null")
-    @Test
-    public void putBuffer_NullPointerException_BufferIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.put(null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@link BufferOverflowException} when {@link
-     * ByteBuffer#remaining() buffer.remaining} is less than {@link HelloWorld#BYTES}({@value
-     * com.github.jinahya.hello.HelloWorld#BYTES}).
-     */
-    @DisplayName("put(buffer) throws BufferOverflowException when buffer.remaining is less than BYTES")
-    @Test
-    public void putBuffer_BufferOverflowException_BufferRemainingIsNotEnough() {
-        // TODO: implement!
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method, when invoked with a byte buffer {@link ByteBuffer#hasArray()
-     * backed by an array}, invokes {@link HelloWorld#set(byte[], int) set(buffer.array, buffer.arrayOffset +
-     * buffer.position)} and increments the {@link ByteBuffer#position(int) buffer.position} by {@value
-     * com.github.jinahya.hello.HelloWorld#BYTES}.
-     */
-    @DisplayName("put(buffer-with-backing-array) invokes set(buffer.array, buffer.arrayOffset + buffer.position)")
-    @Test
-    public void putBufferWithBackingArray_InvokeSetArrayWithIndexAndIncrementPosition_() {
-        // TODO: implement!
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method, when invoked with a byte buffer {@link ByteBuffer#hasArray()
-     * not backed by any array}, invokes {@link HelloWorld#set(byte[]) set(byte[12])} method and puts the array to the
-     * buffer.
-     */
-    @DisplayName("put(buffer-with-no-backing-array) invokes set(array) and put the array to the buffer")
-    @Test
-    public void putBufferWithNoBackingArray_InvokeSetArrayPutArrayToBuffer() {
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns given buffer when the buffer has a backing array.
-     */
-    @DisplayName("put(buffer-with-backing-array) returns buffer")
-    @Test
-    public void putBufferWithBackingArray_ReturnBuffer_() {
-        // TODO: implement!
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns given buffer when the buffer has no backing array.
-     */
-    @DisplayName("put(buffer with no backing array) returns specified buffer")
-    @Test
-    public void putBufferWithNoBackingArray_ReturnBuffer_() {
-        // TODO: implement!
-    }
-
-    // --------------------------- write(Ljava.nio.channels.WritableByteChannel;)Ljava.nio.channels.WritableByteChannel;
-
-    /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method throws a {@link NullPointerException} when {@code
-     * channel} argument is {@code null}.
-     */
-    @DisplayName("write(channel) throws NullPointerException when channel is null")
-    @Test
-    public void writeChannel_NullPointerException_ChannelIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((WritableByteChannel) null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method invokes {@link HelloWorld#put(ByteBuffer)} method
-     * with a byte buffer of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the buffer to specified
-     * channel.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(channel) invokes put(buffer) and writes the buffer to the channel")
-    @Test
-    public void writeChannel_InvokePutBufferWriteBufferToChannel_() throws IOException {
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method returns given channel.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(channel) returns channel")
-    @Test
-    public void writeChannel_ReturnChannel_() throws IOException {
-    }
-
-    // ----------------------------------------------------------------- write(Ljava.nio.file.Path;)Ljava.nio.file.Path;
-
-    /**
-     * Asserts {@link HelloWorld#append(Path) append(path)} method throws a {@link NullPointerException} when the {@code
-     * path} argument is {@code null}.
-     */
-    @DisplayName("append(path) throws NullPointerException when path is null")
-    @Test
-    public void appendPath_NullPointerException_PathIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.append((Path) null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#append(Path) append(path)} method invokes {@link HelloWorld#write(WritableByteChannel)}
-     * method with a channel and asserts {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes are appended to the
-     * {@code path}.
-     *
-     * @param tempDir a temporary directory to test with.
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("append(path) invokes write(channel)")
-    @Test
-    public void appendPath_InvokeWriteChannel_(final @TempDir Path tempDir) throws IOException {
-        // TODO: implement!!
-    }
-
-    /**
-     * Asserts {@link HelloWorld#append(Path)} method returns specified {@code path} argument.
-     *
-     * @param tempDir a temporary directory to test with.
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(path) returns path")
-    @Test
-    public void assertAppendPathReturnsPath(@TempDir final Path tempDir) throws IOException {
-        // TODO: implement!!
-    }
-
-    // ---------------------------------------- send(Ljava.nio.channels.SocketChannel;)Ljava.nio.channels.SocketChannel;
-    @Deprecated
-    @Test
-    void testSendSocketChannel() throws IOException {
-        final SocketChannel expected = mock(SocketChannel.class);
-        when(expected.write(any(ByteBuffer.class))).then(i -> {
-            final ByteBuffer buffer = i.getArgument(0);
-            final int remaining = buffer.remaining();
-            buffer.position(buffer.position() + remaining); // drain all available bytes
-            return remaining;
-        });
-        when(helloWorld.write(expected)).thenAnswer(i -> {
-            final SocketChannel channel = i.getArgument(0, SocketChannel.class);
-            channel.write(allocate(BYTES));
-            return channel;
-        });
-        final SocketChannel actual = helloWorld.send(expected);
-        assertEquals(expected, actual);
+    public void assertSetThrowsNullPointerExceptionWhenArrayIsNull() {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Returns a proxy of {@link #helloWorld} whose method arguments and result are validated.
-     *
-     * @return a proxy of {@link #helloWorld}.
-     */
-    HelloWorld helloWorld() {
-        return newValidationProxy(HelloWorld.class, helloWorld);
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Intercepts the result of {@link HelloWorld#set(byte[])} method.
-     */
-    @BeforeEach
-    private void interceptTheResultOfSetArray() {
-        arrayCaptor.captured = false;
-        doAnswer(arrayCaptor).when(helloWorld).set(any(byte[].class));
-    }
-
-    /**
-     * Intercepts the result of {@link HelloWorld#put(ByteBuffer)} method.
-     */
-    @BeforeEach
-    private void interceptTheResultOfPutBuffer() {
-        bufferCaptor.captured = false;
-        doAnswer(bufferCaptor).when(helloWorld).put(any(ByteBuffer.class));
-    }
-
-    /**
-     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link Spy spied} {@code helloWorld} instance to return
-     * specified {@code array}.
-     */
-    @BeforeEach
-    private void stubSetArrayIndexToReturnSpecifiedArray() {
-        when(helloWorld.set(any(byte[].class), anyInt())) // <1>
-                .thenAnswer(i -> i.getArgument(0));       // <2>
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * A result captor for capturing the argument of {@link HelloWorld#set(byte[])} method.
-     */
-    final ResultCaptor<byte[]> arrayCaptor = new ResultCaptor<>();
-
-    /**
-     * A result captor for capturing the argument of {@link HelloWorld#put(ByteBuffer)} method.
-     */
-    final ResultCaptor<ByteBuffer> bufferCaptor = new ResultCaptor<>();
-
-    /**
-     * An injected spy of {@link HelloWorld} interface.
-     */
     @Spy
-    HelloWorld helloWorld;
+    private HelloWorld helloWorld;
 }
