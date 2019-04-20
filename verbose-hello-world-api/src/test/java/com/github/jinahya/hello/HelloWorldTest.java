@@ -48,6 +48,7 @@ import static com.github.jinahya.hello.ValidationProxy.newValidationProxy;
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
@@ -87,7 +88,8 @@ public class HelloWorldTest {
      */
     @DisplayName("set(array) throws NullPointerException when array is null")
     @Test
-    public void setArray_NullPointerException_ArrayIsNull() {
+    public void assertSetThrowsNullPointerExceptionWhenArrayIsNull() {
+        assertThrows(NullPointerException.class, () -> helloWorld.set(null));
     }
 
     /**
