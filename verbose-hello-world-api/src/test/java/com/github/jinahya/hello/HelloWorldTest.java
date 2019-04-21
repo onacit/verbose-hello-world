@@ -116,8 +116,11 @@ public class HelloWorldTest {
      * Asserts {@link HelloWorld#write(OutputStream)} method returns specified {@code stream} argument.
      */
     @Test
-    public void assertWriteStreamReturnsSpecifiedStream() {
-        // @todo: implement!
+    public void assertWriteStreamReturnsSpecifiedStream() throws IOException {
+        final OutputStream expected = mock(OutputStream.class);
+        final OutputStream actual = helloWorld.write(expected);
+        verify(helloWorld).write(expected);
+        assertEquals(expected, actual);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
