@@ -47,7 +47,7 @@ public class HelloWorldTest {
         assertEquals("hello, world".getBytes(US_ASCII).length, HelloWorld.SIZE);
     }
 
-    // ------------------------------------------------------------------------------------------------------- set([B)[B
+    // ----------------------------------------------------------------------------------------------------- set(byte[])
 
     /**
      * Asserts {@link HelloWorld#set(byte[])} method throws a {@link NullPointerException} when the {@code array}
