@@ -314,11 +314,8 @@ public interface HelloWorld {
         if (stream == null) {
             throw new NullPointerException("stream is null");
         }
-        final byte[] array = new byte[SIZE];
-        final int index = 0;
-        set(array, index);
-        stream.write(array);
-        return stream;
+        // @todo: implement!
+        return null;
     }
 
     default <T extends File> T write(final T file) throws IOException {

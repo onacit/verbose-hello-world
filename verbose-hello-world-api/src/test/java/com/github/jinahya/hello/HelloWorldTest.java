@@ -1,9 +1,13 @@
 package com.github.jinahya.hello;
 
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.io.DataOutput;
 import java.io.File;
@@ -23,13 +27,18 @@ import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 /**
  * An abstract class for unit-testing {@link HelloWorld} interface.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
+@MockitoSettings(strictness = Strictness.LENIENT)
 @ExtendWith({MockitoExtension.class})
+@Slf4j
 public class HelloWorldTest {
 
     // ----------------------------------------------------------------------------------------------------------- BYTES
@@ -70,7 +79,57 @@ public class HelloWorldTest {
         assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
     }
 
+    /**
+     * Asserts {@link HelloWorld#set(byte[])} method returns specified array argument.
+     */
+    @Test
+    public void assertSetArrayReturnsGivenArray() {
+        final byte[] array = new byte[HelloWorld.SIZE];
+        assertEquals(array, helloWorld.set(array));
+    }
+
+    // --------------------------------------------------------------------------------------------- write(OutputStream)
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream)} method throws {@code NullPointerException} when {@code stream}
+     * argument is {@code null}.
+     */
+    @Test
+    public void assertWriteStreamThrowsNullPointerExceptionWhenStreamIsNull() {
+        final OutputStream stream = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.write(stream));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream)} method returns specified {@code stream} argument.
+     */
+    @Test
+    public void assertWriteStreamReturnsSpecifiedStream() {
+        // @todo: implement!
+    }
+
     // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} to return specified {@code array}
+     * argument.
+     */
+    @BeforeEach
+    private void stubSetArrayWithIndexToReturnSpecifiedArray() {
+        when(helloWorld.set(any(), anyInt())).thenAnswer(i -> i.getArgument(0));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} returns specified {@code array}
+     * argument.
+     */
+    @Test
+    private void assertSetArrayWitnIndexReturnsSpecifiedArray() {
+        final byte[] array = current().nextBoolean() ? null : new byte[current().nextInt(HelloWorld.SIZE << 1)];
+        final int index = current().nextInt();
+        assertEquals(array, helloWorld.set(array, index));
+    }
+
     @Spy
     private HelloWorld helloWorld;
 }
