@@ -272,10 +272,9 @@ public interface HelloWorld {
             throw new NullPointerException("array is null");
         }
         if (array.length < SIZE) {
-            throw new IllegalArgumentException("array.length(" + array.length + ") < " + SIZE);
+            throw new IndexOutOfBoundsException("array.length(" + array.length + ") < " + SIZE);
         }
-        final int index = 0;
-        return set(array, index);
+        return set(array, 0);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
