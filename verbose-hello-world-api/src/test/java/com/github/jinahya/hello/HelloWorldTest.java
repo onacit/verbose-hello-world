@@ -4,13 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.io.DataOutput;
-import java.io.File;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
@@ -101,6 +101,18 @@ public class HelloWorldTest {
     }
 
     /**
+     * Asserts {@link HelloWorld#write(OutputStream)} method writes exactly {@value HelloWorld#SIZE} bytes to the
+     * stream.
+     */
+    @Test
+    public void assertWriteStreamWritesExactly12Bytes() throws IOException {
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream(HelloWorld.SIZE);
+        helloWorld.write(stream);
+        //verify(helloWorld).write(stream);
+        assertEquals(stream.size(), HelloWorld.SIZE);
+    }
+
+    /**
      * Asserts {@link HelloWorld#write(OutputStream)} method returns specified {@code stream} argument.
      */
     @Test
@@ -130,6 +142,7 @@ public class HelloWorldTest {
         assertEquals(array, helloWorld.set(array, index));
     }
 
+    // -----------------------------------------------------------------------------------------------------------------
     @Spy
     private HelloWorld helloWorld;
 }
