@@ -336,9 +336,8 @@ public interface HelloWorld {
         if (socket == null) {
             throw new NullPointerException("socket is null");
         }
-        final OutputStream stream = socket.getOutputStream();
-        write(stream);
-        return socket;
+        // @todo: implement!
+        return null;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
