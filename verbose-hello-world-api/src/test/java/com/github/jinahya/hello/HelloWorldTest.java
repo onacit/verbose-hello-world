@@ -167,24 +167,35 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSendSocketThrowsNullPointerExceptionWhenSocketIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.send((Socket) null));
+        final Socket socket = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.send(socket));
     }
 
     /**
      * Asserts {@link HelloWorld#send(Socket)} method sends exactly {@value HelloWorld#SIZE} bytes to the {@code
      * socket}.
+     *
+     * @throws IOException if an I/O error occurs.
      */
     @Test
-    public void assertSendSocketSendsExactly12BytesToSocket() {
-        // @todo: implement!
+    public void assertSendSocketSendsExactly12BytesToSocket() throws IOException {
+        final Socket socket = mock(Socket.class);
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream(HelloWorld.SIZE);
+        when(socket.getOutputStream()).thenReturn(stream);
+        helloWorld.send(socket);
+        stream.flush();
+        assertEquals(HelloWorld.SIZE, stream.size());
     }
 
     /**
      * Asserts {@link HelloWorld#send(Socket)} method returns the specified {@code socket}.
      */
     @Test
-    public void assertSendSocketReturnsSpecifiedSocket() {
-        // @todo: implement!
+    public void assertSendSocketReturnsSpecifiedSocket() throws IOException {
+        final Socket expected = mock(Socket.class);
+        when(expected.getOutputStream()).thenReturn(mock(OutputStream.class));
+        final Socket actual = helloWorld.send(expected);
+        assertEquals(expected, actual);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
