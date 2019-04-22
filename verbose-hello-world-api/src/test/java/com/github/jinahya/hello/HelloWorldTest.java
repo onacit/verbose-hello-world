@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * An abstract class for unit-testing {@link HelloWorld} interface.
@@ -121,6 +121,70 @@ public class HelloWorldTest {
         final OutputStream actual = helloWorld.write(expected);
         verify(helloWorld).write(expected);
         assertEquals(expected, actual);
+    }
+
+    // ----------------------------------------------------------------------------------------------------- write(File)
+
+    /**
+     * Asserts {@link HelloWorld#write(File)} method throws {@code NullPointerException} when {@code file} argument is
+     * {@code null}.
+     */
+    @Test
+    public void assertWriteFileThrowsNullPointerExceptionWhenFileIsNull() {
+        final File file = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.write(file));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(File)} method write exactly {@value HelloWorld#SIZE} bytes to specified file.
+     */
+    @Test
+    public void assertWriteFileWritesExactly12BytesToFile() throws IOException {
+        final File file = File.createTempFile("tmp", null);
+        file.deleteOnExit();
+        helloWorld.write(file);
+        verify(helloWorld).write(file);
+        assertEquals((long) HelloWorld.SIZE, file.length());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(File)} method returns specified file.
+     */
+    @Test
+    public void assertWriteFileReturnsSpecifiedFile() throws IOException {
+        final File expected = File.createTempFile("tmp", null);
+        expected.deleteOnExit();
+        final File actual = helloWorld.write(expected);
+        verify(helloWorld).write(expected);
+        assertEquals(expected, actual);
+    }
+
+    // ---------------------------------------------------------------------------------------------------- send(Socket)
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method throws {@code NullPointerException} when the {@code socket}
+     * argument is {@code null}.
+     */
+    @Test
+    public void assertSendSocketThrowsNullPointerExceptionWhenSocketIsNull() {
+        assertThrows(NullPointerException.class, () -> helloWorld.send((Socket) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method sends exactly {@value HelloWorld#SIZE} bytes to the {@code
+     * socket}.
+     */
+    @Test
+    public void assertSendSocketSendsExactly12BytesToSocket() {
+        // @todo: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method returns the specified {@code socket}.
+     */
+    @Test
+    public void assertSendSocketReturnsSpecifiedSocket() {
+        // @todo: implement!
     }
 
     // -----------------------------------------------------------------------------------------------------------------
