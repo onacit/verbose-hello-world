@@ -183,6 +183,7 @@ public class HelloWorldTest {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream(HelloWorld.SIZE);
         when(socket.getOutputStream()).thenReturn(stream);
         helloWorld.send(socket);
+        verify(helloWorld).send(socket);
         stream.flush();
         assertEquals(HelloWorld.SIZE, stream.size());
     }
@@ -195,7 +196,47 @@ public class HelloWorldTest {
         final Socket expected = mock(Socket.class);
         when(expected.getOutputStream()).thenReturn(mock(OutputStream.class));
         final Socket actual = helloWorld.send(expected);
+        verify(helloWorld).send(expected);
         assertEquals(expected, actual);
+    }
+
+    // ------------------------------------------------------------------------------------------------- put(ByteBuffer)
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@code NullPointerException} when {@code buffer}
+     * argument is {@code null}.
+     */
+    @Test
+    public void assertPutBufferThrowsNullPointerExceptionWhenBufferIsNull() {
+        final ByteBuffer buffer = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.put(buffer));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@link java.nio.BufferOverflowException} when the
+     * value of {@link ByteBuffer#remaining() remaining()} of {@code buffer} argument is less than {@link
+     * HelloWorld#SIZE}.
+     */
+    @Test
+    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12() {
+        // @todo: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method puts exactly {@value HelloWorld#SIZE} bytes to specified byte
+     * buffer.
+     */
+    @Test
+    public void assertPutBufferPutsExactly12Bytes() {
+        // @todo: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns specified byte buffer.
+     */
+    @Test
+    public void assertPutBufferReturnsSpecifiedBuffer() {
+        // @todo: implement!
     }
 
     // -----------------------------------------------------------------------------------------------------------------

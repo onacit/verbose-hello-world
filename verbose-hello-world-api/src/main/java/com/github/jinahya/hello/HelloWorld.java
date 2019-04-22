@@ -347,18 +347,8 @@ public interface HelloWorld {
         if (buffer == null) {
             throw new NullPointerException("buffer is null");
         }
-        if (buffer.remaining() < SIZE) {
-            throw new IllegalArgumentException("buffer.remaining(" + buffer.remaining() + " < " + SIZE);
-        }
-        if (buffer.hasArray()) {
-            set(buffer.array(), buffer.arrayOffset());
-            buffer.position(buffer.position() + SIZE);
-            return buffer;
-        }
-        final byte[] array = new byte[SIZE];
-        set(array, 0);
-        buffer.put(array);
-        return buffer;
+        // @todo: implement!
+        return null;
     }
 
     default <T extends WritableByteChannel> T write(final T channel) throws IOException {
