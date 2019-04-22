@@ -219,7 +219,14 @@ public class HelloWorldTest {
      */
     @Test
     public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12() {
-        // @todo: implement!
+        {
+            final ByteBuffer buffer = ByteBuffer.allocate(current().nextInt(HelloWorld.SIZE));
+            assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
+        }
+        {
+            final ByteBuffer buffer = ByteBuffer.allocateDirect(current().nextInt(HelloWorld.SIZE));
+            assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
+        }
     }
 
     /**
@@ -227,8 +234,15 @@ public class HelloWorldTest {
      * buffer.
      */
     @Test
-    public void assertPutBufferPutsExactly12Bytes() {
-        // @todo: implement!
+    public void assertPutBufferIncreasesBufferPositionBy12() {
+        {
+            final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.SIZE);
+            helloWorld.put(buffer);
+        }
+        {
+            final ByteBuffer buffer = ByteBuffer.allocateDirect(current().nextInt(HelloWorld.SIZE));
+            assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
+        }
     }
 
     /**

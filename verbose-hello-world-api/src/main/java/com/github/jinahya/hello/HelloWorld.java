@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
@@ -323,6 +324,9 @@ public interface HelloWorld {
     default <T extends ByteBuffer> T put(final T buffer) {
         if (buffer == null) {
             throw new NullPointerException("buffer is null");
+        }
+        if (buffer.remaining() < SIZE) {
+            throw new BufferOverflowException();
         }
         // @todo: implement!
         return null;
