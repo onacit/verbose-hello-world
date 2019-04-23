@@ -14,7 +14,7 @@ import java.io.*;
 import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -296,8 +296,41 @@ public class HelloWorldTest {
      * Asserts {@link HelloWorld#put(ByteBuffer)} method returns specified byte buffer.
      */
     @Test
-    public void assertPutBufferReturnsSpecifiedBuffer() {
-        // @todo: implement!
+    public void assertPutBufferReturnsSpecifiedBufferDirect(@DirectBuffer final ByteBuffer expected) {
+        assertTrue(expected.remaining() >= HelloWorld.SIZE);
+        assertTrue(expected.isDirect());
+        final ByteBuffer actual = helloWorld.put(expected);
+        assertEquals(expected, actual);
+    }
+
+    // -------------------------------------------------------------------------------------- write(WritableByteChannel)
+
+    /**
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method throws a {@code NullPointerException} when {@code
+     * channel} argument is {@code null}.
+     */
+    @Test
+    public void assertWriteChannelThrowsNullPointerExceptionWhenChannelIsNull() {
+        final WritableByteChannel channel = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.write(channel));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method writes {@value HelloWorld#SIZE} bytes.
+     */
+    @Test
+    public void assertWriteChannelWritesBytesOfHelloWorldSize() {
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = Channels.newChannel(baos);
+        helloWorld.write(channel);
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method returns specified channel.
+     */
+    @Test
+    public void assertWriteChannelReturnsSpecifiedChannel() {
+        // TODO: implement!
     }
 
     // -----------------------------------------------------------------------------------------------------------------

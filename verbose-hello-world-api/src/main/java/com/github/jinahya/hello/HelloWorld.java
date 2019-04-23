@@ -336,22 +336,8 @@ public interface HelloWorld {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
-        if (!channel.isOpen()) {
-            throw new IllegalArgumentException("channel is not open");
-        }
-        final ByteBuffer buffer = ByteBuffer.allocate(SIZE);
-        assert buffer.position() == 0;
-        assert buffer.remaining() == SIZE;
-        put(buffer);
-        assert buffer.position() == SIZE;
-        assert !buffer.hasRemaining();
-        buffer.flip();
-        assert buffer.position() == 0;
-        assert buffer.limit() == buffer.capacity();
-        while (buffer.hasRemaining()) {
-            channel.write(buffer);
-        }
-        return channel;
+        // @todo: implement!
+        return null;
     }
 
     default <T extends Path> T write(final T path) throws IOException {
