@@ -18,7 +18,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
+import java.util.concurrent.atomic.LongAdder;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.util.concurrent.ThreadLocalRandom.current;
@@ -179,7 +179,7 @@ public class HelloWorldTest {
         file.deleteOnExit();
         helloWorld.write(file);
         verify(helloWorld).write(file);
-        assertEquals((long) HelloWorld.SIZE, file.length());
+        assertEquals(HelloWorld.SIZE, file.length());
     }
 
     /**
@@ -316,20 +316,52 @@ public class HelloWorldTest {
     }
 
     /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method writes {@value HelloWorld#SIZE} bytes.
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method writes {@value HelloWorld#SIZE} bytes to the {@code
+     * channel} argument.
+     *
+     * @throws IOException if an I/O error occurs.
      */
     @Test
-    public void assertWriteChannelWritesBytesOfHelloWorldSize() {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final WritableByteChannel channel = Channels.newChannel(baos);
+    public void assertWriteChannelWritesOfHelloWorldSizeBytes() throws IOException {
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = Channels.newChannel(stream);
         helloWorld.write(channel);
+        verify(helloWorld).write(channel);
+        assertEquals(HelloWorld.SIZE, stream.size());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method writes {@value HelloWorld#SIZE} bytes to the {@code
+     * channel} argument. This method uses a channel emulating the non-blocking mode.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertWriteChannelWritesOfHelloWorldSizeBytesNonBlockingEmulated() throws IOException {
+        final LongAdder adder = new LongAdder();
+        final WritableByteChannel channel = mock(WritableByteChannel.class);
+        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
+            final ByteBuffer buffer = i.getArgument(0);
+            if (!buffer.hasRemaining()) {
+                return 0;
+            }
+            final int written = current().nextInt(0, buffer.remaining() + 1);
+            buffer.position(buffer.position() + written);
+            adder.add(written);
+            return written;
+        });
+        helloWorld.write(channel);
+        verify((helloWorld)).write(channel);
+        assertEquals(HelloWorld.SIZE, adder.sum());
     }
 
     /**
      * Asserts {@link HelloWorld#write(WritableByteChannel)} method returns specified channel.
      */
     @Test
-    public void assertWriteChannelReturnsSpecifiedChannel() {
+    public void assertWriteChannelReturnsSpecifiedChannel() throws IOException {
+        final WritableByteChannel expected = mock(WritableByteChannel.class);
+        final WritableByteChannel actual = helloWorld.write(expected);
         // TODO: implement!
     }
 
