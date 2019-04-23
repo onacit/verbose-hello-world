@@ -10,10 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -74,7 +71,7 @@ public class HelloWorldTest {
      */
     @DisplayName("set(array) throws IndexOutOfBoundsException when array.length is less than BYTES")
     @Test
-    public void assertSetThrowsIndexOufOfBoundsExceptionWhenArrayLengthIsLessThanSize() {
+    public void assertSetArrayThrowsIndexOufOfBoundsExceptionWhenArrayLengthIsLessThan12() {
         final byte[] array = new byte[current().nextInt(HelloWorld.SIZE)];
         assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
     }
@@ -84,8 +81,47 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSetArrayReturnsGivenArray() {
-        final byte[] array = new byte[HelloWorld.SIZE];
-        assertEquals(array, helloWorld.set(array));
+        final byte[] expected = new byte[HelloWorld.SIZE];
+        final byte[] actual = helloWorld.set(expected);
+        assertEquals(expected, actual);
+    }
+
+    // ----------------------------------------------------------------------------------------------- write(DataOutput)
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method throws a {@code NullPointerException} when {@code data}
+     * argument is {@code null}.
+     */
+    @Test
+    public void assertWriteDataThrowsNullPointerExceptionWhenDataIsNull() {
+        final DataOutput data = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.write(data));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method writes exactly {@value HelloWorld#SIZE} bytes to specified
+     * data output.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertWriteDataMethodWritesExactly12BytesToData() throws IOException {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             DataOutputStream data = new DataOutputStream(baos)) {
+            helloWorld.write((DataOutput) data);
+            data.flush();
+            assertEquals(HelloWorld.SIZE, baos.size());
+        }
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method returns the specified data output.
+     */
+    @Test
+    public void assertWriteDataMethodReturnsSpecifiedData() throws IOException {
+        final DataOutput expected = mock(DataOutput.class);
+        final DataOutput actual = helloWorld.write(expected);
+        assertEquals(expected, actual);
     }
 
     // --------------------------------------------------------------------------------------------- write(OutputStream)
