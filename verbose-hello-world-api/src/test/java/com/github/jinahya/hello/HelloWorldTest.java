@@ -217,16 +217,22 @@ public class HelloWorldTest {
      * value of {@link ByteBuffer#remaining() remaining()} of {@code buffer} argument is less than {@link
      * HelloWorld#SIZE}.
      */
-    @Test
-    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12() {
-        {
-            final ByteBuffer buffer = ByteBuffer.allocate(current().nextInt(HelloWorld.SIZE));
-            assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
-        }
-        {
-            final ByteBuffer buffer = ByteBuffer.allocateDirect(current().nextInt(HelloWorld.SIZE));
-            assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
-        }
+    @MethodSource({"buffersWithNotEnoughRemaining"})
+    @ParameterizedTest
+    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12(final ByteBuffer buffer) {
+        assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
+    }
+
+    /**
+     * Provides byte buffers whose {@code remaining()} is equals to {@link HelloWorld#SIZE}.
+     *
+     * @return a stream of arguments of bytes buffers.
+     */
+    private static Stream<Arguments> buffersWithEnoughRemaining() {
+        return Stream.of(
+                Arguments.of(ByteBuffer.allocate(HelloWorld.SIZE)),
+                Arguments.of(ByteBuffer.allocateDirect(HelloWorld.SIZE))
+        );
     }
 
     /**
