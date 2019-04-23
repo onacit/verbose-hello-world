@@ -22,8 +22,7 @@ import java.nio.file.Path;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.util.concurrent.ThreadLocalRandom.current;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -251,7 +250,8 @@ public class HelloWorldTest {
     @Test
     public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12NonDirect(
             @NotEnoughRemaining final ByteBuffer buffer) {
-        // @todo: implement!
+        assertTrue(buffer.remaining() < HelloWorld.SIZE);
+        assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
     }
 
     /**
@@ -259,9 +259,9 @@ public class HelloWorldTest {
      * value of {@link ByteBuffer#remaining() remaining()} of {@code buffer} argument is less than {@link
      * HelloWorld#SIZE}.
      */
-    @MethodSource({"buffersWithNotEnoughRemaining"})
-    @ParameterizedTest
-    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12(final ByteBuffer buffer) {
+    @Test
+    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThanHelloWorldSizeDirect(
+            @NotEnoughRemaining @DirectBuffer final ByteBuffer buffer) {
         assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
     }
 
@@ -270,11 +270,10 @@ public class HelloWorldTest {
      *
      * @return a stream of arguments of bytes buffers.
      */
-    private static Stream<Arguments> buffersWithEnoughRemaining() {
-        return Stream.of(
-                Arguments.of(ByteBuffer.allocate(HelloWorld.SIZE)),
-                Arguments.of(ByteBuffer.allocateDirect(HelloWorld.SIZE))
-        );
+    @Test
+    public void assertPutBufferIncreasesBufferPositionByHelloWorldSize(final ByteBuffer buffer) {
+        assert buffer.remaining() >= HelloWorld.SIZE;
+        final int position = buffer.position();
     }
 
     /**
