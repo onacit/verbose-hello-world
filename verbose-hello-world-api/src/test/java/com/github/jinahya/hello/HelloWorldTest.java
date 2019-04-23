@@ -214,14 +214,14 @@ public class HelloWorldTest {
      * @throws IOException if an I/O error occurs.
      */
     @Test
-    public void assertSendSocketSendsExactly12BytesToSocket() throws IOException {
+    public void assertSendSocketSendsExpectedNumberOfBytesToSocket() throws IOException {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final Socket socket = mock(Socket.class);
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream(HelloWorld.SIZE);
-        when(socket.getOutputStream()).thenReturn(stream);
+        when(socket.getOutputStream()).thenReturn(outputStream);
         helloWorld.send(socket);
         verify(helloWorld).send(socket);
-        stream.flush();
-        assertEquals(HelloWorld.SIZE, stream.size());
+        socket.getOutputStream().flush();
+        assertEquals(HelloWorld.SIZE, outputStream.size());
     }
 
     /**
@@ -246,6 +246,12 @@ public class HelloWorldTest {
     public void assertPutBufferThrowsNullPointerExceptionWhenBufferIsNull() {
         final ByteBuffer buffer = null;
         assertThrows(NullPointerException.class, () -> helloWorld.put(buffer));
+    }
+
+    @Test
+    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12NonDirect(
+            @NotEnoughRemaining final ByteBuffer buffer) {
+        // @todo: implement!
     }
 
     /**
