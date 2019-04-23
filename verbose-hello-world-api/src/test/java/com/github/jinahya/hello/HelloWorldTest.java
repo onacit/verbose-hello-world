@@ -362,6 +362,35 @@ public class HelloWorldTest {
     public void assertWriteChannelReturnsSpecifiedChannel() throws IOException {
         final WritableByteChannel expected = mock(WritableByteChannel.class);
         final WritableByteChannel actual = helloWorld.write(expected);
+        verify(helloWorld).write(expected);
+        assertEquals(expected, actual);
+    }
+
+    // ----------------------------------------------------------------------------------------------------- write(Path)
+
+    /**
+     * Asserts {@link HelloWorld#write(Path)} method throws a {@code NullPointerException} when {@code path} argument is
+     * {@code null}.
+     */
+    @Test
+    public void assertWritePathThrowsNullPointerExceptionWhenPathIsNull() {
+        final Path path = null;
+        assertThrows(NullPointerException.class, () -> helloWorld.write(path));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(Path)} method writes {@value HelloWorld#SIZE} bytes to specified path.
+     */
+    @Test
+    public void assertWritePathWriteHelloWorldSizeBytes() {
+        // TODO: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(Path)} method returns specified path.
+     */
+    @Test
+    public void assertWritePathReturnsSpecifiedPath() {
         // TODO: implement!
     }
 

@@ -340,18 +340,20 @@ public interface HelloWorld {
         return null;
     }
 
+    /**
+     * Writes {@value SIZE} bytes to specified path.
+     *
+     * @param path the path to which bytes are written.
+     * @param <T> path type parameter
+     * @return specified path
+     * @throws IOException if an I/O error occurs.
+     */
     default <T extends Path> T write(final T path) throws IOException {
         if (path == null) {
             throw new NullPointerException("path is null");
         }
-        final WritableByteChannel channel = FileChannel.open(
-                path, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.DSYNC);
-        try {
-            write(channel);
-        } finally {
-            channel.close();
-        }
-        return path;
+        // @todo: implement!
+        return null;
     }
 
     default <T extends SocketChannel> T send(final T socket) throws IOException {
