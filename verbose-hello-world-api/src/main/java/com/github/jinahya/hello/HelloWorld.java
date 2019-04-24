@@ -362,6 +362,7 @@ public interface HelloWorld {
         if (socket == null) {
             throw new NullPointerException("socket is null");
         }
-        return write(socket);
+        write(channel);
+        return channel;
     }
 }

@@ -411,7 +411,80 @@ public class HelloWorldTest {
             }
         }));
         final Path actual = helloWorld.write(expected);
-        verify(helloWorld).write(expected);
+        Mockito.verify(helloWorld).write(expected);
+        Assertions.assertEquals(expected, actual);
+    }
+
+    // --------------------------------------------------------------------------------------------- send(SocketChannel)
+
+    /**
+     * Asserts {@link HelloWorld#send(SocketChannel)} method throws a {@code NullPointerException} when specified socket
+     * channel is {@code null}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertSendChannelThrowsNullPointerExceptionIfChannelIsNull() throws IOException {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.send((SocketChannel) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(SocketChannel)} method sends {@link HelloWorld#SIZE} bytes to specified socket
+     * channel.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertSendChannelSendsHelloWorldSizeBytesToSpecifiedChannel() throws IOException {
+        final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.SIZE);
+        final SocketChannel channel = Mockito.mock(SocketChannel.class);
+        Mockito.when(channel.write(any(ByteBuffer.class)))
+                .thenAnswer(i -> buffer.put(i.getArgument(0, ByteBuffer.class)).position());
+        helloWorld.send(channel);
+        Mockito.verify(helloWorld).send(channel);
+        Assertions.assertFalse(buffer.hasRemaining());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(SocketChannel)} method sends {@link HelloWorld#SIZE} bytes to specified socket
+     * channel. This method emulates non-blocking channel.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertSendChannelSendsHelloWorldSizeBytesToSpecifiedChannelEmulateNonBlocking() throws IOException {
+        final LongAdder adder = new LongAdder();
+        final SocketChannel channel = Mockito.mock(SocketChannel.class);
+        Mockito.when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
+            final ByteBuffer buffer = i.getArgument(0);
+            if (!buffer.hasRemaining()) {
+                return 0;
+            }
+            final int written = current().nextInt(buffer.remaining() + 1);
+            buffer.position(buffer.position() + written);
+            adder.add(written);
+            return written;
+        });
+        helloWorld.send(channel);
+        Mockito.verify(helloWorld).send(channel);
+        Assertions.assertEquals(HelloWorld.SIZE, adder.sum());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(SocketChannel)} method returns specified socket channel.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertSendChannelReturnsSpecifiedChannel() throws IOException {
+        final SocketChannel expected = Mockito.mock(SocketChannel.class);
+        Mockito.when(expected.write(any(ByteBuffer.class))).thenAnswer(i -> {
+            final ByteBuffer buffer = i.getArgument(0);
+            final int written = buffer.remaining();
+            buffer.position(buffer.position() + written);
+            return written;
+        });
+        final SocketChannel actual = helloWorld.send(expected);
         assertEquals(expected, actual);
     }
 
