@@ -26,7 +26,11 @@ import static com.github.jinahya.hello.ByteBufferParameterResolver.DirectBuffer;
 import static com.github.jinahya.hello.ByteBufferParameterResolver.NotEnoughRemaining;
 import static java.io.File.createTempFile;
 import static java.util.concurrent.ThreadLocalRandom.current;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -78,6 +82,7 @@ public class HelloWorldTest {
     @Test
     public void assertSetArrayThrowsIndexOufOfBoundsExceptionWhenArrayLengthIsLessThan12() {
         final byte[] array = new byte[current().nextInt(HelloWorld.SIZE)];
+        assertTrue(array.length < HelloWorld.SIZE);
         assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
     }
 
@@ -88,6 +93,7 @@ public class HelloWorldTest {
     public void assertSetArrayReturnsGivenArray() {
         final byte[] expected = new byte[HelloWorld.SIZE];
         final byte[] actual = helloWorld.set(expected);
+        verify(helloWorld).set(expected, 0);
         assertEquals(expected, actual);
     }
 
@@ -99,8 +105,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWriteDataThrowsNullPointerExceptionWhenDataIsNull() {
-        final DataOutput data = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.write(data));
+        assertThrows(NullPointerException.class, () -> helloWorld.write((DataOutput) null));
     }
 
     /**
@@ -111,11 +116,12 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWriteDataMethodWritesExactly12BytesToData() throws IOException {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             DataOutputStream data = new DataOutputStream(baos)) {
+        try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
+             DataOutputStream data = new DataOutputStream(stream)) {
             helloWorld.write((DataOutput) data);
+            verify(helloWorld).set(any(byte[].class));
             data.flush();
-            assertEquals(HelloWorld.SIZE, baos.size());
+            assertEquals(HelloWorld.SIZE, stream.size());
         }
     }
 
@@ -126,6 +132,7 @@ public class HelloWorldTest {
     public void assertWriteDataMethodReturnsSpecifiedData() throws IOException {
         final DataOutput expected = mock(DataOutput.class);
         final DataOutput actual = helloWorld.write(expected);
+        verify(expected).write(any(byte[].class));
         assertEquals(expected, actual);
     }
 
@@ -139,7 +146,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWriteRandomAccessFileThrowsNullPointerExceptionWhenFileIsNull() throws IOException {
-        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
+        assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
     }
 
     /**
@@ -154,6 +161,7 @@ public class HelloWorldTest {
         tmp.deleteOnExit();
         try (RandomAccessFile file = new RandomAccessFile(tmp, "rw")) {
             helloWorld.write(file);
+            verify(helloWorld).set(any(byte[].class));
             file.getFD().sync();
         }
         assertEquals(HelloWorld.SIZE, tmp.length());
@@ -168,6 +176,7 @@ public class HelloWorldTest {
     public void assertWriteRandomAccessFileReturnsSpecifiedFile() throws IOException {
         final RandomAccessFile expected = mock(RandomAccessFile.class);
         final RandomAccessFile actual = helloWorld.write(expected);
+        verify(expected).write(any(byte[].class));
         assertEquals(expected, actual);
     }
 
@@ -179,8 +188,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWriteStreamThrowsNullPointerExceptionWhenStreamIsNull() {
-        final OutputStream stream = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.write(stream));
+        assertThrows(NullPointerException.class, () -> helloWorld.write((OutputStream) null));
     }
 
     /**
@@ -191,8 +199,9 @@ public class HelloWorldTest {
     public void assertWriteStreamWritesExactly12Bytes() throws IOException {
         final ByteArrayOutputStream stream = new ByteArrayOutputStream(HelloWorld.SIZE);
         helloWorld.write(stream);
-        //verify(helloWorld).write(stream);
-        assertEquals(stream.size(), HelloWorld.SIZE);
+        verify(helloWorld).set(any(byte[].class));
+        stream.flush();
+        assertEquals(HelloWorld.SIZE, stream.size());
     }
 
     /**
@@ -202,7 +211,7 @@ public class HelloWorldTest {
     public void assertWriteStreamReturnsSpecifiedStream() throws IOException {
         final OutputStream expected = mock(OutputStream.class);
         final OutputStream actual = helloWorld.write(expected);
-        verify(helloWorld).write(expected);
+        verify(helloWorld).set(any(byte[].class));
         assertEquals(expected, actual);
     }
 
@@ -214,8 +223,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWriteFileThrowsNullPointerExceptionWhenFileIsNull() {
-        final File file = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.write(file));
+        assertThrows(NullPointerException.class, () -> helloWorld.write((File) null));
     }
 
     /**
@@ -226,7 +234,7 @@ public class HelloWorldTest {
         final File file = createTempFile("tmp", null);
         file.deleteOnExit();
         helloWorld.write(file);
-        verify(helloWorld).write(file);
+        verify(helloWorld).set(any(byte[].class));
         assertEquals(HelloWorld.SIZE, file.length());
     }
 
@@ -238,7 +246,7 @@ public class HelloWorldTest {
         final File expected = createTempFile("tmp", null);
         expected.deleteOnExit();
         final File actual = helloWorld.write(expected);
-        verify(helloWorld).write(expected);
+        verify(helloWorld).set(any(byte[].class));
         assertEquals(expected, actual);
     }
 
@@ -250,8 +258,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSendSocketThrowsNullPointerExceptionWhenSocketIsNull() {
-        final Socket socket = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.send(socket));
+        assertThrows(NullPointerException.class, () -> helloWorld.send((Socket) null));
     }
 
     /**
@@ -262,13 +269,14 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSendSocketSendsExpectedNumberOfBytesToSocket() throws IOException {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final Socket socket = mock(Socket.class);
-        when(socket.getOutputStream()).thenReturn(outputStream);
+        when(socket.getOutputStream()).thenReturn(stream);
         helloWorld.send(socket);
-        verify(helloWorld).send(socket);
+        verify(socket).getOutputStream();
+        verify(helloWorld).set(any(byte[].class));
         socket.getOutputStream().flush();
-        assertEquals(HelloWorld.SIZE, outputStream.size());
+        assertEquals(HelloWorld.SIZE, stream.size());
     }
 
     /**
@@ -276,10 +284,13 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSendSocketReturnsSpecifiedSocket() throws IOException {
+        final OutputStream stream = mock(OutputStream.class);
         final Socket expected = mock(Socket.class);
-        when(expected.getOutputStream()).thenReturn(mock(OutputStream.class));
+        when(expected.getOutputStream()).thenReturn(stream);
         final Socket actual = helloWorld.send(expected);
-        verify(helloWorld).send(expected);
+        verify(expected).getOutputStream();
+        verify(helloWorld).set(any(byte[].class));
+        verify(stream).write(any(byte[].class));
         assertEquals(expected, actual);
     }
 
@@ -291,8 +302,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertPutBufferThrowsNullPointerExceptionWhenBufferIsNull() {
-        final ByteBuffer buffer = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.put(buffer));
+        assertThrows(NullPointerException.class, () -> helloWorld.put(null));
     }
 
     @Test
@@ -436,6 +446,7 @@ public class HelloWorldTest {
                 Files.delete(path);
             } catch (final IOException ioe) {
                 ioe.printStackTrace();
+                fail("failed to delete the temporary file", ioe);
             }
         }));
         helloWorld.write(path);
@@ -454,11 +465,12 @@ public class HelloWorldTest {
                 Files.delete(expected);
             } catch (final IOException ioe) {
                 ioe.printStackTrace();
+                fail("failed to delete the temporary file", ioe);
             }
         }));
         final Path actual = helloWorld.write(expected);
-        Mockito.verify(helloWorld).write(expected);
-        Assertions.assertEquals(expected, actual);
+        verify(helloWorld).write(expected);
+        assertEquals(expected, actual);
     }
 
     // --------------------------------------------------------------------------------------------- send(SocketChannel)
@@ -471,7 +483,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSendChannelThrowsNullPointerExceptionIfChannelIsNull() throws IOException {
-        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.send((SocketChannel) null));
+        assertThrows(NullPointerException.class, () -> helloWorld.send((SocketChannel) null));
     }
 
     /**
@@ -484,11 +496,11 @@ public class HelloWorldTest {
     public void assertSendChannelSendsHelloWorldSizeBytesToSpecifiedChannel() throws IOException {
         final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.SIZE);
         final SocketChannel channel = Mockito.mock(SocketChannel.class);
-        Mockito.when(channel.write(any(ByteBuffer.class)))
+        when(channel.write(any(ByteBuffer.class)))
                 .thenAnswer(i -> buffer.put(i.getArgument(0, ByteBuffer.class)).position());
         helloWorld.send(channel);
-        Mockito.verify(helloWorld).send(channel);
-        Assertions.assertFalse(buffer.hasRemaining());
+        verify(helloWorld).send(channel);
+        assertFalse(buffer.hasRemaining());
     }
 
     /**
@@ -500,8 +512,8 @@ public class HelloWorldTest {
     @Test
     public void assertSendChannelSendsHelloWorldSizeBytesToSpecifiedChannelEmulateNonBlocking() throws IOException {
         final LongAdder adder = new LongAdder();
-        final SocketChannel channel = Mockito.mock(SocketChannel.class);
-        Mockito.when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
+        final SocketChannel channel = mock(SocketChannel.class);
+        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
             final ByteBuffer buffer = i.getArgument(0);
             if (!buffer.hasRemaining()) {
                 return 0;
@@ -512,8 +524,8 @@ public class HelloWorldTest {
             return written;
         });
         helloWorld.send(channel);
-        Mockito.verify(helloWorld).send(channel);
-        Assertions.assertEquals(HelloWorld.SIZE, adder.sum());
+        verify(helloWorld).send(channel);
+        assertEquals(HelloWorld.SIZE, adder.sum());
     }
 
     /**
@@ -523,8 +535,8 @@ public class HelloWorldTest {
      */
     @Test
     public void assertSendChannelReturnsSpecifiedChannel() throws IOException {
-        final SocketChannel expected = Mockito.mock(SocketChannel.class);
-        Mockito.when(expected.write(any(ByteBuffer.class))).thenAnswer(i -> {
+        final SocketChannel expected = mock(SocketChannel.class);
+        when(expected.write(any(ByteBuffer.class))).thenAnswer(i -> {
             final ByteBuffer buffer = i.getArgument(0);
             final int written = buffer.remaining();
             buffer.position(buffer.position() + written);
