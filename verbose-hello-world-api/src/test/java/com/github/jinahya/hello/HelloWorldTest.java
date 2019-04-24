@@ -22,12 +22,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.LongAdder;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
+import static com.github.jinahya.hello.ByteBufferParameterResolver.DirectBuffer;
+import static com.github.jinahya.hello.ByteBufferParameterResolver.NotEnoughRemaining;
+import static java.io.File.createTempFile;
 import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * An abstract class for unit-testing {@link HelloWorld} interface.
@@ -125,6 +129,48 @@ public class HelloWorldTest {
         assertEquals(expected, actual);
     }
 
+    // ----------------------------------------------------------------------------------------- write(RandomAccessFile)
+
+    /**
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} method throws a {@code NullPointerException} when {@code file}
+     * argument is {@code null}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertWriteRandomAccessFileThrowsNullPointerExceptionWhenFileIsNull() throws IOException {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} methods writes as many bytes as {@link HelloWorld#SIZE} to
+     * specified random access file.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertWriteRandomAccessFileWritesAsManyBytesAsHelloWorldSize() throws IOException {
+        final File tmp = createTempFile("tmp", null);
+        tmp.deleteOnExit();
+        try (RandomAccessFile file = new RandomAccessFile(tmp, "rw")) {
+            helloWorld.write(file);
+            file.getFD().sync();
+        }
+        assertEquals(HelloWorld.SIZE, tmp.length());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} method returns the specified random access file.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @Test
+    public void assertWriteRandomAccessFileReturnsSpecifiedFile() throws IOException {
+        final RandomAccessFile expected = mock(RandomAccessFile.class);
+        final RandomAccessFile actual = helloWorld.write(expected);
+        assertEquals(expected, actual);
+    }
+
     // --------------------------------------------------------------------------------------------- write(OutputStream)
 
     /**
@@ -176,8 +222,8 @@ public class HelloWorldTest {
      * Asserts {@link HelloWorld#write(File)} method write exactly {@value HelloWorld#SIZE} bytes to specified file.
      */
     @Test
-    public void assertWriteFileWritesExactly12BytesToFile() throws IOException {
-        final File file = File.createTempFile("tmp", null);
+    public void assertWriteFileWritesExpectedNumberOfBytesToFile() throws IOException {
+        final File file = createTempFile("tmp", null);
         file.deleteOnExit();
         helloWorld.write(file);
         verify(helloWorld).write(file);
@@ -189,7 +235,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWriteFileReturnsSpecifiedFile() throws IOException {
-        final File expected = File.createTempFile("tmp", null);
+        final File expected = createTempFile("tmp", null);
         expected.deleteOnExit();
         final File actual = helloWorld.write(expected);
         verify(helloWorld).write(expected);
@@ -491,8 +537,7 @@ public class HelloWorldTest {
     // -----------------------------------------------------------------------------------------------------------------
 
     /**
-     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} to return specified {@code array}
-     * argument.
+     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} to just return the specified array.
      */
     @BeforeEach
     private void stubSetArrayWithIndexToReturnSpecifiedArray() {
