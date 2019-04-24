@@ -426,17 +426,6 @@ public class HelloWorldTest {
         when(helloWorld.set(any(), anyInt())).thenAnswer(i -> i.getArgument(0));
     }
 
-    /**
-     * Asserts {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} returns specified {@code array}
-     * argument.
-     */
-    @Test
-    private void assertSetArrayWitnIndexReturnsSpecifiedArray() {
-        final byte[] array = current().nextBoolean() ? null : new byte[current().nextInt(HelloWorld.SIZE << 1)];
-        final int index = current().nextInt();
-        assertEquals(array, helloWorld.set(array, index));
-    }
-
     // -----------------------------------------------------------------------------------------------------------------
     @Spy
     private HelloWorld helloWorld;
