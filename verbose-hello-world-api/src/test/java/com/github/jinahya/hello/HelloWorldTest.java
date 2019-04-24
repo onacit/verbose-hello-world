@@ -374,8 +374,7 @@ public class HelloWorldTest {
      */
     @Test
     public void assertWritePathThrowsNullPointerExceptionWhenPathIsNull() {
-        final Path path = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.write(path));
+        assertThrows(NullPointerException.class, () -> helloWorld.write((Path) null));
     }
 
     /**
