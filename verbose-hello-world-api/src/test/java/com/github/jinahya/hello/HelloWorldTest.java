@@ -18,6 +18,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.LongAdder;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
@@ -381,16 +383,36 @@ public class HelloWorldTest {
      * Asserts {@link HelloWorld#write(Path)} method writes {@value HelloWorld#SIZE} bytes to specified path.
      */
     @Test
-    public void assertWritePathWriteHelloWorldSizeBytes() {
-        // TODO: implement!
+    public void assertWritePathWritesHelloWorldSizeBytesToPath() throws IOException {
+        final Path path = Files.createTempFile(null, null);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Files.delete(path);
+            } catch (final IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }));
+        helloWorld.write(path);
+        verify(helloWorld).write(path);
+        assertEquals(HelloWorld.SIZE, Files.size(path));
     }
 
     /**
      * Asserts {@link HelloWorld#write(Path)} method returns specified path.
      */
     @Test
-    public void assertWritePathReturnsSpecifiedPath() {
-        // TODO: implement!
+    public void assertWritePathReturnsSpecifiedPath() throws IOException {
+        final Path expected = Files.createTempFile(null, null);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Files.delete(expected);
+            } catch (final IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }));
+        final Path actual = helloWorld.write(expected);
+        verify(helloWorld).write(expected);
+        assertEquals(expected, actual);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
