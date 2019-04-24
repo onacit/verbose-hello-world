@@ -375,8 +375,10 @@ public interface HelloWorld {
         if (path == null) {
             throw new NullPointerException("path is null");
         }
-        // @todo: implement!
-        return null;
+        final FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE);
+        write(channel);
+        channel.force(false);
+        return path;
     }
 
     default <T extends SocketChannel> T send(final T socket) throws IOException {
