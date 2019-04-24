@@ -1,9 +1,11 @@
 package com.github.jinahya.hello;
 
+import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -102,25 +104,8 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        // TODO: implement!
-    }
-
-    /**
-     * Sends <a href="#hello-world-bytes">hello-world-bytes</a> through specified socket.
-     *
-     * @param socket the socket through which bytes are sent.
-     * @throws NullPointerException if {@code socket} is {@code null}.
-     * @throws IOException          if an I/O error occurs.
-     * @implSpec The implementation in this class invokes {@link #write(OutputStream)} method with {@link
-     * Socket#getOutputStream() socket.outputStream}.
-     * @see Socket#getOutputStream()
-     * @see #write(OutputStream)
-     */
-    default void send(final Socket socket) throws IOException {
-        if (socket == null) {
-            throw new NullPointerException("socket is null");
-        }
-        // TODO: implement!
+        set(array, 0);
+        return array;
     }
 
     /**
@@ -159,7 +144,10 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        // TODO: implement!
+        final byte[] array = new byte[SIZE];
+        set(array);
+        file.write(array);
+        return file;
     }
 
     /**
