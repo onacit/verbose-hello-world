@@ -37,8 +37,12 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+<<<<<<< HEAD
 
 import static java.util.Objects.requireNonNull;
+=======
+import java.util.Objects;
+>>>>>>> sketch
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -104,8 +108,19 @@ public interface HelloWorld {
      * @see #set(byte[], int)
      */
     default @NotNull byte[] set(@NotNull final byte[] array) {
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        if (array == null) {
+            throw new NullPointerException("array is null");
+        }
+        if (array.length < BYTES) {
+            throw new ArrayIndexOutOfBoundsException("array.length(" + array.length + ") < " + BYTES);
+        }
+        set(array, 0);
+        return array;
+>>>>>>> sketch
     }
 
     /**
@@ -132,8 +147,15 @@ public interface HelloWorld {
         if (stream == null) {
             throw new NullPointerException("stream is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final byte[] array = new byte[BYTES];
+        set(array);
+        stream.write(array);
+        return stream;
+>>>>>>> sketch
     }
 
     /**
@@ -163,8 +185,19 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final OutputStream stream = new FileOutputStream(file, true);
+        try {
+            write(stream);
+            stream.flush();
+        } finally {
+            stream.close();
+        }
+        return file;
+>>>>>>> sketch
     }
 
     /**
@@ -189,8 +222,13 @@ public interface HelloWorld {
         if (socket == null) {
             throw new NullPointerException("socket is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        write(socket.getOutputStream());
+        return socket;
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -218,8 +256,15 @@ public interface HelloWorld {
         if (data == null) {
             throw new NullPointerException("data is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final byte[] array = new byte[BYTES];
+        set(array);
+        data.write(array);
+        return data;
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -248,8 +293,15 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final byte[] array = new byte[BYTES];
+        set(array);
+        file.write(array);
+        return file;
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -293,8 +345,23 @@ public interface HelloWorld {
         if (buffer == null) {
             throw new NullPointerException("buffer is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        if (buffer.remaining() < BYTES) {
+            throw new BufferOverflowException();
+        }
+        if (buffer.hasArray()) {
+            set(buffer.array(), buffer.arrayOffset() + buffer.position());
+            buffer.position(buffer.position() + BYTES);
+        } else {
+            final byte[] array = new byte[BYTES];
+            set(array);
+            buffer.put(array);
+        }
+        return buffer;
+>>>>>>> sketch
     }
 
     /**
@@ -325,8 +392,18 @@ public interface HelloWorld {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final ByteBuffer buffer = ByteBuffer.allocate(BYTES);
+        put(buffer);
+        buffer.flip();
+        while (buffer.hasRemaining()) {
+            final int written = channel.write(buffer);
+        }
+        return channel;
+>>>>>>> sketch
     }
 
     /**
@@ -357,8 +434,19 @@ public interface HelloWorld {
         if (path == null) {
             throw new NullPointerException("path is null");
         }
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final FileChannel channel = FileChannel.open(path, StandardOpenOption.APPEND);
+        try {
+            write(channel);
+            channel.force(false);
+        } finally {
+            channel.close();
+        }
+        return path;
+>>>>>>> sketch
     }
 
     /**
@@ -376,6 +464,10 @@ public interface HelloWorld {
      */
     @Deprecated
     default <T extends SocketChannel> @NotNull T send(@NotNull final T socket) throws IOException {
+<<<<<<< HEAD
         return write(requireNonNull(socket, "socket is null"));
+=======
+        return write(Objects.requireNonNull(socket, "socket is null"));
+>>>>>>> sketch
     }
 }

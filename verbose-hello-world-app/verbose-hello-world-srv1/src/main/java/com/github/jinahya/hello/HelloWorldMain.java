@@ -22,7 +22,16 @@ package com.github.jinahya.hello;
 
 import lombok.extern.slf4j.Slf4j;
 
+<<<<<<< HEAD
 import java.io.IOException;
+=======
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.CompletableFuture;
+>>>>>>> sketch
 
 import static java.util.ServiceLoader.load;
 
@@ -36,6 +45,30 @@ public class HelloWorldMain {
 
     // -----------------------------------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+    private static CompletableFuture<Void> closer(final ServerSocket server) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                try {
+                    final BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+                    while (true) {
+                        if ("quit".equals(r.readLine())) {
+                            log.info("quit command received");
+                            break;
+                        }
+                    }
+                } finally {
+                    server.close();
+                    log.info("server closed");
+                }
+            } catch (final IOException ioe) {
+                log.error("failed to close", ioe);
+            }
+        });
+    }
+
+>>>>>>> sketch
     /**
      * The main method of this program which accepts socket connections and sends {@code hello, world} to clients.
      *
@@ -44,7 +77,33 @@ public class HelloWorldMain {
      */
     public static void main(final String... args) throws IOException {
         final HelloWorld helloWorld = load(HelloWorld.class).iterator().next();
+<<<<<<< HEAD
         // TODO: implement!
+=======
+        try (ServerSocket server = new ServerSocket(0)) {
+            log.info("bound to {}", server.getLocalSocketAddress());
+            final CompletableFuture<Void> closer = closer(server);
+            while (!server.isClosed()) {
+                try {
+                    try (Socket client = server.accept()) {
+                        helloWorld.send(client);
+                    }
+                } catch (final IOException ioe) {
+                    if (server.isClosed()) {
+                        break;
+                    }
+                    log.error("failed to send", ioe);
+                }
+            }
+            log.info("broke out from the loop");
+            if (!closer.isCancelled()) {
+                log.warn("canceling the closer...");
+                closer.cancel(true);
+            }
+            log.info("closer.done: {}", closer.isDone());
+        }
+        log.info("end of program");
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------

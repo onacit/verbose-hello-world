@@ -38,7 +38,13 @@ public class HelloWorldMain {
      * @throws IOException if an I/O error occurs.
      */
     public static void main(final String[] args) throws IOException {
+<<<<<<< HEAD
         // TODO: implement!
+=======
+        final HelloWorld helloWorld = new HelloWorldImpl();
+        helloWorld.write(System.out);
+        System.out.println();
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------

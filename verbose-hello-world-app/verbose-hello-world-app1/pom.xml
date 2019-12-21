@@ -5,7 +5,11 @@
 
   <parent>
     <groupId>com.github.jinahya</groupId>
+<<<<<<< HEAD
     <artifactId>verbose-hello-world-app</artifactId>
+=======
+    <artifactId>verbose-hello-world</artifactId>
+>>>>>>> sketch
     <version>0.1.0-SNAPSHOT</version>
   </parent>
 

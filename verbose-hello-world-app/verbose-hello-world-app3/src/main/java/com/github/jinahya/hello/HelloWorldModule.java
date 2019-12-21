@@ -37,7 +37,11 @@ class HelloWorldModule extends AbstractModule {
     private static final String HELLO_WORLD_IMPL_FQCN = "com.github.jinahya.hello.HelloWorldImpl";
 
     /**
+<<<<<<< HEAD
      * The class found with {@link #HELLO_WORLD_IMPL_FQCN}.
+=======
+     * The class of {@link #HELLO_WORLD_IMPL_FQCN}.
+>>>>>>> sketch
      */
     private static final Class<? extends HelloWorld> HELLO_WORLD_IMPL_CLASS;
 
@@ -52,6 +56,10 @@ class HelloWorldModule extends AbstractModule {
     // -----------------------------------------------------------------------------------------------------------------
     @Override
     protected void configure() {
+<<<<<<< HEAD
         // TODO: implement!
+=======
+        bind(HelloWorld.class).to(HELLO_WORLD_IMPL_CLASS);
+>>>>>>> sketch
     }
 }

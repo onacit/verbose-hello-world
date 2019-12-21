@@ -21,6 +21,11 @@ package com.github.jinahya.hello;
  */
 
 import java.io.IOException;
+<<<<<<< HEAD
+=======
+import java.util.Iterator;
+import java.util.ServiceLoader;
+>>>>>>> sketch
 
 /**
  * A class whose {@link #main(String[])} method prints {@code hello, world} to {@link System#out}.
@@ -38,7 +43,15 @@ public class HelloWorldMain {
      * @throws IOException if an I/O error occurs.
      */
     public static void main(final String[] args) throws IOException {
+<<<<<<< HEAD
         // TODO: implement!
+=======
+        final ServiceLoader<HelloWorld> loader = ServiceLoader.load(HelloWorld.class);
+        final Iterator<HelloWorld> iterator = loader.iterator();
+        final HelloWorld helloWorld = iterator.next();
+        helloWorld.write(System.out);
+        System.out.printf("%n");
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------

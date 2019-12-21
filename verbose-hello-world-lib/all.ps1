@@ -2,7 +2,11 @@ $profilesAndTests = [ordered]@{
     "cdi-se-openwebbeans" = "HelloWorldCdiSeOpenWebBeansTest"
     "cdi-se-weld" = "HelloWorldCdiSeWeldTest"
     "di-dagger" = "HelloWorldDiDaggerTest"
+<<<<<<< HEAD
     "di-guide" = "HelloWorldDiGuiceTest"
+=======
+    "di-guice" = "HelloWorldDiGuiceTest"
+>>>>>>> sketch
     "di-hk2" = "HelloWorldDiHk2Test"
     "di-spring" = "HelloWorldDiSpringTest"
     "weld-junit5" = "HelloWorldWeldJunit5Test"

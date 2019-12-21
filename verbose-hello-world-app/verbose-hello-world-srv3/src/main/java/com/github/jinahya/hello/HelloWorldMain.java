@@ -22,7 +22,18 @@ package com.github.jinahya.hello;
 
 import lombok.extern.slf4j.Slf4j;
 
+<<<<<<< HEAD
 import java.io.IOException;
+=======
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+>>>>>>> sketch
 
 import static java.util.ServiceLoader.load;
 
@@ -43,6 +54,70 @@ public class HelloWorldMain {
      * @throws IOException if an I/O error occurs.
      */
     public static void main(final String[] args) throws IOException {
+<<<<<<< HEAD
+=======
+        final HelloWorld helloWorld = load(HelloWorld.class).iterator().next();
+        final Executor executor = Executors.newCachedThreadPool();
+        try (ServerSocket server = new ServerSocket(0)) {
+            log.info("bound to {}", server.getLocalSocketAddress());
+            new Thread(() -> {
+                try {
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+                        while (true) {
+                            final String line = reader.readLine();
+                            if (!"quit".equals(line)) {
+                                continue;
+                            }
+                            try {
+                                server.close();
+                            } catch (final IOException ioe) {
+                                log.error("failed to closed the socket", ioe);
+                            }
+                        }
+                    }
+                } catch (final IOException ioe) {
+                    log.error("failed to read system input", ioe);
+                }
+            }).start();
+            while (!server.isClosed()) {
+                try {
+                    final Socket client = server.accept();
+                    try {
+                        executor.execute(() -> {
+                            try {
+                                try {
+                                    helloWorld.send(client);
+                                } finally {
+                                    try {
+                                        client.close();
+                                    } catch (final IOException ioe) {
+                                        log.error("failed to close the socket", ioe);
+                                    }
+                                }
+                            } catch (final IOException ioe) {
+                                log.debug("failed to send", ioe);
+                            }
+                        });
+                    } catch (final RejectedExecutionException ree) {
+                        log.error("failed to execute", ree);
+                        try {
+                            client.close();
+                        } catch (final IOException ioe) {
+                            log.error("failed to close the socket", ioe);
+                        }
+                    }
+                } catch (final IOException ioe) {
+                    if (server.isClosed()) {
+                        log.info("server is closed. breaking out...");
+                        break;
+                    }
+                    log.error("failed to accept", ioe);
+                }
+            }
+            log.info("broke out from the loop");
+        }
+        log.info("end of program");
+>>>>>>> sketch
         final HelloWorld service = load(HelloWorld.class).iterator().next();
         // TODO: implement!
     }

@@ -31,7 +31,11 @@ import java.lang.reflect.InvocationHandler;
 import static java.lang.reflect.Proxy.newProxyInstance;
 
 /**
+<<<<<<< HEAD
  * A class for proxying validation instances.
+=======
+ * A class for creating validation proxy.
+>>>>>>> sketch
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
@@ -41,8 +45,15 @@ final class ValidationProxy {
     // -----------------------------------------------------------------------------------------------------------------
 
     /**
+<<<<<<< HEAD
      * Returns a proxy of specified hello world instance whose method arguments and result are validated.
      *
+=======
+     * Creates a new validation proxy of specified instance.
+     *
+     * @param type     an interface for proxy type.
+     * @param instance the instance to be wrapped.
+>>>>>>> sketch
      * @return a validation proxy of specified instance.
      */
     @SuppressWarnings({"unchecked"})
@@ -69,6 +80,13 @@ final class ValidationProxy {
     }
 
     // -----------------------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
+=======
+
+    /**
+     * Creates a new instance.
+     */
+>>>>>>> sketch
     private ValidationProxy() {
         super();
     }

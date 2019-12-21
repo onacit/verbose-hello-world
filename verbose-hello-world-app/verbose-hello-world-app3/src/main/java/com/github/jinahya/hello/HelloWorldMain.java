@@ -20,6 +20,12 @@ package com.github.jinahya.hello;
  * #L%
  */
 
+<<<<<<< HEAD
+=======
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+>>>>>>> sketch
 import javax.inject.Inject;
 import java.io.IOException;
 
@@ -39,7 +45,15 @@ public class HelloWorldMain {
      * @throws IOException if an I/O error occurs.
      */
     public static void main(final String[] args) throws IOException {
+<<<<<<< HEAD
         // TODO: implement!
+=======
+        final HelloWorldMain main = new HelloWorldMain();                       // <1>
+        final Injector injector = Guice.createInjector(new HelloWorldModule()); // <2>
+        injector.injectMembers(main);                                           // <3>
+        main.helloWorld.write(System.out);                                      // <4>
+        System.out.printf("%n");                                                // <5>
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------

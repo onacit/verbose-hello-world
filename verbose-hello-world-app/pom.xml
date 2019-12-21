@@ -61,7 +61,12 @@
               <phase>package</phase>
               <configuration>
                 <target>
+<<<<<<< HEAD
                   <property name="final.name" value="${project.build.directory}/${project.build.finalName}"/>
+=======
+                  <property name="final.name"
+                            value="${project.build.directory}/${project.build.finalName}"/>
+>>>>>>> sketch
                   <property name="archive.includes"
                             value="${project.build.finalName}-manual.${project.packaging} ${project.build.finalName}-manual.lib/*"/>
                   <property name="tar.destfile" value="${final.name}-manual.tar"/>
@@ -109,7 +114,12 @@
               <phase>prepare-package</phase>
               <configuration>
                 <includeScope>runtime</includeScope>
+<<<<<<< HEAD
                 <outputDirectory>${project.build.directory}/${project.build.finalName}-manual.lib</outputDirectory>
+=======
+                <outputDirectory>${project.build.directory}/${project.build.finalName}-manual.lib
+                </outputDirectory>
+>>>>>>> sketch
               </configuration>
             </execution>
           </executions>
@@ -148,7 +158,12 @@
               <configuration>
                 <shadedArtifactAttached>true</shadedArtifactAttached>
                 <transformers>
+<<<<<<< HEAD
                   <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+=======
+                  <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+>>>>>>> sketch
                     <mainClass>${mainClass}</mainClass>
                   </transformer>
                 </transformers>

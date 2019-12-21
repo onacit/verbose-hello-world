@@ -20,14 +20,32 @@ package com.github.jinahya.hello;
  * #L%
  */
 
+<<<<<<< HEAD
 import javax.inject.Inject;
 import javax.inject.Named;
+=======
+import lombok.extern.slf4j.Slf4j;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+import java.lang.reflect.Field;
+import java.util.List;
+
+import static java.util.Arrays.stream;
+import static java.util.Collections.shuffle;
+import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+>>>>>>> sketch
 
 /**
  * An abstract class for testing {@link HelloWorld} implementations using Dependency Injection.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
+<<<<<<< HEAD
+=======
+@Slf4j
+>>>>>>> sketch
 public abstract class HelloWorldDiTest extends AbstractHelloWorldTest {
 
     // -----------------------------------------------------------------------------------------------------------------
@@ -45,8 +63,27 @@ public abstract class HelloWorldDiTest extends AbstractHelloWorldTest {
     // -----------------------------------------------------------------------------------------------------------------
     @Override
     HelloWorld helloWorld() {
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final List<Field> fields
+                = stream(HelloWorldDiTest.class.getDeclaredFields())   // <1>
+                .filter(f -> f.getType() == HelloWorld.class           // <2>
+                             && f.getAnnotation(Inject.class) != null)
+                .collect(toList());                                    // <3>
+        assertEquals(4, fields.size());
+        shuffle(fields);
+        final Field field = fields.get(0);
+        if (!field.isAccessible()) {
+            field.setAccessible(true);
+        }
+        try {
+            return (HelloWorld) field.get(this);
+        } catch (final IllegalAccessException iae) {
+            throw new RuntimeException(iae);
+        }
+>>>>>>> sketch
     }
 
     // -----------------------------------------------------------------------------------------------------------------

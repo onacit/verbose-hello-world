@@ -20,6 +20,12 @@ package com.github.jinahya.hello;
  * #L%
  */
 
+<<<<<<< HEAD
+=======
+import java.util.Iterator;
+import java.util.ServiceLoader;
+
+>>>>>>> sketch
 /**
  * A class for testing {@link HelloWorldImpl} using Service Provider Interface.
  *
@@ -30,7 +36,16 @@ class HelloWorldSpiTest extends AbstractHelloWorldTest {
     // -----------------------------------------------------------------------------------------------------------------
     @Override
     HelloWorld helloWorld() {
+<<<<<<< HEAD
         // TODO: implement!
         return null;
+=======
+        final ServiceLoader<HelloWorld> loader = ServiceLoader.load(HelloWorld.class);
+        final Iterator<HelloWorld> iterator = loader.iterator();
+        while (iterator.hasNext()) {
+            return iterator.next();
+        }
+        throw new RuntimeException("no provider for valid instances");
+>>>>>>> sketch
     }
 }
