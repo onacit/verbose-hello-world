@@ -24,6 +24,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
@@ -31,10 +33,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doReturn;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
 /**
@@ -66,8 +67,28 @@ class HelloWorld_SendSocketTest extends HelloWorldTest {
     @DisplayName("send(socket) invokes write(socket.outputStream)")
     @Test
     void sendSocket_InvokeWriteStreamWithSocketOutputStream_() throws IOException {
-        final Socket socket = spy(new Socket());              // <1>
-        final OutputStream stream = mock(OutputStream.class); // <2>
-        doReturn(stream).when(socket).getOutputStream();      // <3>
+        final OutputStream stream = mock(OutputStream.class); // <1>
+        final Socket socket = mock(Socket.class);             // <2>
+        when(socket.getOutputStream()).thenReturn(stream);    // <3>
+        helloWorld.send(socket);                                      // <4>
+        Mockito.verify(socket, Mockito.times(1)).getOutputStream();   // <5>
+        final ArgumentCaptor<OutputStream> streamCaptor               // <6>
+                = ArgumentCaptor.forClass(OutputStream.class);
+        Mockito.verify(helloWorld, Mockito.times(1)).write(streamCaptor.capture()); // <7>
+        assertSame(stream, streamCaptor.getValue()); // <8>
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method returns the specified socket.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("send(socket) returns socket")
+    @Test
+    void sendSocket_ReturnSocket_() throws IOException {
+        final Socket expected = mock(Socket.class); // <1>
+        when(expected.getOutputStream()).thenReturn(mock(OutputStream.class)); // <2>
+        final Socket actual = helloWorld.send(expected); // <3>
+        assertSame(expected, actual); // <4>
     }
 }
