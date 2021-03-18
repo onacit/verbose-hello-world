@@ -25,8 +25,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
+
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.quality.Strictness.LENIENT;
 
@@ -57,6 +61,8 @@ class HelloWorld_SetArrayTest extends HelloWorldTest {
     @DisplayName("set(array) throws IndexOutOfBoundsException when array.length is less than BYTES")
     @Test
     void setArray_IndexOutOfBoundsException_ArrayLengthIsLessThanBYTES() {
+        final byte[] array = new byte[ThreadLocalRandom.current().nextInt(0, HelloWorld.BYTES)];
+        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
     }
 
     /**
@@ -66,5 +72,23 @@ class HelloWorld_SetArrayTest extends HelloWorldTest {
     @DisplayName("set(array) invokes set(array, 0)")
     @Test
     void setArray_InvokesSetArrayWithArrayAndZero() {
+        final ArgumentCaptor<byte[]> arrayCaptor = ArgumentCaptor.forClass(byte[].class); // <1>
+        final ArgumentCaptor<Integer> indexCaptor = ArgumentCaptor.forClass(int.class); // <2>
+        final byte[] array = new byte[HelloWorld.BYTES]; // <3>
+        helloWorld.set(array); // <4>
+        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor.capture(), indexCaptor.capture()); // <5>
+        Assertions.assertSame(array, arrayCaptor.getValue()); // <6>
+        Assertions.assertEquals(0, indexCaptor.getValue()); // <7>
+    }
+
+    /**
+     * Asserts {@link HelloWorld#set(byte[])} method returns given {@code array}.
+     */
+    @DisplayName("set(array) returns array")
+    @Test
+    void setArray_ReturnArray_() {
+        final byte[] expected = new byte[HelloWorld.BYTES];
+        final byte[] actual = helloWorld.set(expected);
+        Assertions.assertSame(expected, actual);
     }
 }
