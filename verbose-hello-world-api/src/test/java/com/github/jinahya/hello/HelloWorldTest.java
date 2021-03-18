@@ -1,48 +1,68 @@
 package com.github.jinahya.hello;
 
+/*-
+ * #%L
+ * verbose-hello-world-api
+ * %%
+ * Copyright (C) 2018 - 2019 Jinahya, Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 
-import java.io.*;
+import java.io.DataOutput;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.atomic.LongAdder;
 
-import static com.github.jinahya.hello.ByteBufferParameterResolver.DirectBuffer;
-import static com.github.jinahya.hello.ByteBufferParameterResolver.NotEnoughRemaining;
-import static java.io.File.createTempFile;
-import static java.util.concurrent.ThreadLocalRandom.current;
+import static com.github.jinahya.hello.HelloWorld.BYTES;
+import static com.github.jinahya.hello.ValidationProxy.newValidationProxy;
+import static java.nio.ByteBuffer.allocate;
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.quality.Strictness.LENIENT;
 
 /**
  * An abstract class for unit-testing {@link HelloWorld} interface.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
-@MockitoSettings(strictness = Strictness.LENIENT)
+@MockitoSettings(strictness = LENIENT)
 @ExtendWith({MockitoExtension.class})
 @Slf4j
 public class HelloWorldTest {
@@ -58,11 +78,12 @@ public class HelloWorldTest {
      */
     @DisplayName("BYTES equals to the actual number of \"hello, world\" bytes")
     @Test
-    void assertSizeEqualsToHelloWorldBytes() {
-        assertEquals("hello, world".getBytes(US_ASCII).length, HelloWorld.SIZE);
+    void assertHelloWorldBytesEqualsToActualNumberOfHelloWorldBytes() {
+        final int expected = "hello, world".getBytes(US_ASCII).length;
+        Assertions.assertEquals(expected, BYTES);
     }
 
-    // ----------------------------------------------------------------------------------------------------- set(byte[])
+    // ------------------------------------------------------------------------------------------------------- set([B)[B
 
     /**
      * Asserts {@link HelloWorld#set(byte[])} method throws a {@link NullPointerException} when the {@code array}
@@ -70,8 +91,7 @@ public class HelloWorldTest {
      */
     @DisplayName("set(array) throws NullPointerException when array is null")
     @Test
-    public void assertSetThrowsNullPointerExceptionWhenArrayIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.set(null));
+    public void setArray_NullPointerException_ArrayIsNull() {
     }
 
     /**
@@ -80,467 +100,349 @@ public class HelloWorldTest {
      */
     @DisplayName("set(array) throws IndexOutOfBoundsException when array.length is less than BYTES")
     @Test
-    public void assertSetArrayThrowsIndexOufOfBoundsExceptionWhenArrayLengthIsLessThan12() {
-        final byte[] array = new byte[current().nextInt(HelloWorld.SIZE)];
-        assertTrue(array.length < HelloWorld.SIZE);
-        assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
+    public void setArray_IndexOutOfBoundsException_ArrayLengthIsLessThanBYTES() {
     }
 
     /**
-     * Asserts {@link HelloWorld#set(byte[])} method returns specified array argument.
+     * Asserts {@link HelloWorld#set(byte[])} method invokes {@link HelloWorld#set(byte[], int)} method with specified
+     * {@code array} and {@code 0} and returns the result.
      */
+    @DisplayName("set(array) invokes set(array, 0)")
     @Test
-    public void assertSetArrayReturnsGivenArray() {
-        final byte[] expected = new byte[HelloWorld.SIZE];
-        final byte[] actual = helloWorld.set(expected);
-        verify(helloWorld).set(expected, 0);
-        assertEquals(expected, actual);
+    public void setArray_InvokesSetArrayWithArrayAndZero() {
     }
 
-    // ----------------------------------------------------------------------------------------------- write(DataOutput)
-
     /**
-     * Asserts {@link HelloWorld#write(DataOutput)} method throws a {@code NullPointerException} when {@code data}
-     * argument is {@code null}.
+     * Asserts {@link HelloWorld#set(byte[])} method returns specified {@code array} argument.
      */
+    @DisplayName("set(array) returns array")
     @Test
-    public void assertWriteDataThrowsNullPointerExceptionWhenDataIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.write((DataOutput) null));
+    public void assertSetArrayReturnsArray() {
+        // TODO: implement!
+    }
+
+    // ------------------------------------------------------------- write(Ljava.io.OutputStream;)Ljava.io.OutputStream;
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream) write(stream)} method throws a {@link NullPointerException} when
+     * {@code stream} argument is {@code null}.
+     */
+    @DisplayName("write(stream) throws NullPointerException when stream is null")
+    @Test
+    public void writeStream_NullPointerException_StreamIsNull() {
     }
 
     /**
-     * Asserts {@link HelloWorld#write(DataOutput)} method writes exactly {@value HelloWorld#SIZE} bytes to specified
-     * data output.
+     * Asserts {@link HelloWorld#write(OutputStream) write(stream)} method invokes {@link HelloWorld#set(byte[])
+     * set(byte[])} method with an array of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the
+     * array to specified {@code stream}.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(stream) invokes set(array) and writes the array to the stream")
     @Test
-    public void assertWriteDataMethodWritesExactly12BytesToData() throws IOException {
-        try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
-             DataOutputStream data = new DataOutputStream(stream)) {
-            helloWorld.write((DataOutput) data);
-            verify(helloWorld).set(any(byte[].class));
-            data.flush();
-            assertEquals(HelloWorld.SIZE, stream.size());
-        }
+    public void writeStream_InvokeSetArrayAndWriteArrayToStream_() throws IOException {
     }
 
     /**
-     * Asserts {@link HelloWorld#write(DataOutput)} method returns the specified data output.
-     */
-    @Test
-    public void assertWriteDataMethodReturnsSpecifiedData() throws IOException {
-        final DataOutput expected = mock(DataOutput.class);
-        final DataOutput actual = helloWorld.write(expected);
-        verify(expected).write(any(byte[].class));
-        assertEquals(expected, actual);
-    }
-
-    // ----------------------------------------------------------------------------------------- write(RandomAccessFile)
-
-    /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} method throws a {@code NullPointerException} when {@code file}
-     * argument is {@code null}.
+     * Asserts {@link HelloWorld#write(OutputStream) write(stream)} method returns specified {@code stream}.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(stream) returns the stream")
     @Test
-    public void assertWriteRandomAccessFileThrowsNullPointerExceptionWhenFileIsNull() throws IOException {
-        assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
+    public void writeStream_ReturnStream_() throws IOException {
+    }
+
+    // ----------------------------------------------------------------------------- write(Ljava.io.File;)Ljava.io.File;
+
+    /**
+     * Asserts {@link HelloWorld#append(File) append(file)} method throws a {@link NullPointerException} when {@code
+     * file} argument is {@code null}.
+     */
+    @DisplayName("append(file) throws a NullPointerException when the file is null")
+    @Test
+    public void appendFile_NullPointerException_FileIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.append((File) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} methods writes as many bytes as {@link HelloWorld#SIZE} to
-     * specified random access file.
+     * Asserts {@link HelloWorld#append(File) append(file)} method invokes {@link HelloWorld#write(OutputStream)
+     * write(stream)} method.
+     *
+     * @param tempDir a temporary directory to test with.
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("append(file) invokes write(stream)")
+    @Test
+    public void appendFile_InvokeWriteStream_(final @TempDir File tempDir) throws IOException {
+        final File file = java.io.File.createTempFile("tmp", null, tempDir);
+    }
+
+    /**
+     * Asserts {@link HelloWorld#append(File) append(file)} method returns given file.
+     *
+     * @param tempDir a temporary directory to test with.
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("append(file) returns given file")
+    @Test
+    public void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
+        final File file = java.io.File.createTempFile("tmp", null, tempDir);
+    }
+
+    // ------------------------------------------------------------------------ send(Ljava.net.Socket;)Ljava.net.Socket;
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket) send(socket)} method throws a {@link NullPointerException} when the {@code
+     * socket} argument is {@code null}.
+     */
+    @DisplayName("send(socket) throws NullPointerException when socket is null")
+    @Test
+    public void sendSocket_NullPointerException_SocketIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.send((Socket) null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#send(Socket)} method invokes the {@link HelloWorld#write(OutputStream)} method with
+     * what specified socket's {@link Socket#getOutputStream() outputStream}.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("send(socket) invokes write(socket.outputStream)")
     @Test
-    public void assertWriteRandomAccessFileWritesAsManyBytesAsHelloWorldSize() throws IOException {
-        final File tmp = createTempFile("tmp", null);
-        tmp.deleteOnExit();
-        try (RandomAccessFile file = new RandomAccessFile(tmp, "rw")) {
-            helloWorld.write(file);
-            verify(helloWorld).set(any(byte[].class));
-            file.getFD().sync();
-        }
-        assertEquals(HelloWorld.SIZE, tmp.length());
+    public void sendSocket_InvokeWriteStreamWithSocketOutputStream_() throws IOException {
+        // TODO: implement!
     }
 
     /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} method returns the specified random access file.
+     * Asserts {@link HelloWorld#send(Socket)} method returns the specified socket.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("send(socket) returns socket")
     @Test
-    public void assertWriteRandomAccessFileReturnsSpecifiedFile() throws IOException {
-        final RandomAccessFile expected = mock(RandomAccessFile.class);
-        final RandomAccessFile actual = helloWorld.write(expected);
-        verify(expected).write(any(byte[].class));
-        assertEquals(expected, actual);
+    public void sendSocket_ReturnSocket_() throws IOException {
+        // TODO: implement!
     }
 
-    // --------------------------------------------------------------------------------------------- write(OutputStream)
+    // ----------------------------------------------------------------- write(Ljava.io.DataOutput;)Ljava.io.DataOutput;
 
     /**
-     * Asserts {@link HelloWorld#write(OutputStream)} method throws {@code NullPointerException} when {@code stream}
+     * Asserts {@link HelloWorld#write(DataOutput)} method throws a {@link NullPointerException} when {@code data}
      * argument is {@code null}.
      */
+    @DisplayName("write(data) method throws NullPointerException when data is null")
     @Test
-    public void assertWriteStreamThrowsNullPointerExceptionWhenStreamIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.write((OutputStream) null));
+    public void writeData_NullPointerException_DataIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((DataOutput) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#write(OutputStream)} method writes exactly {@value HelloWorld#SIZE} bytes to the
-     * stream.
-     */
-    @Test
-    public void assertWriteStreamWritesExactly12Bytes() throws IOException {
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream(HelloWorld.SIZE);
-        helloWorld.write(stream);
-        verify(helloWorld).set(any(byte[].class));
-        stream.flush();
-        assertEquals(HelloWorld.SIZE, stream.size());
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(OutputStream)} method returns specified {@code stream} argument.
-     */
-    @Test
-    public void assertWriteStreamReturnsSpecifiedStream() throws IOException {
-        final OutputStream expected = mock(OutputStream.class);
-        final OutputStream actual = helloWorld.write(expected);
-        verify(helloWorld).set(any(byte[].class));
-        assertEquals(expected, actual);
-    }
-
-    // ----------------------------------------------------------------------------------------------------- write(File)
-
-    /**
-     * Asserts {@link HelloWorld#write(File)} method throws {@code NullPointerException} when {@code file} argument is
-     * {@code null}.
-     */
-    @Test
-    public void assertWriteFileThrowsNullPointerExceptionWhenFileIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.write((File) null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(File)} method write exactly {@value HelloWorld#SIZE} bytes to specified file.
-     */
-    @Test
-    public void assertWriteFileWritesExpectedNumberOfBytesToFile() throws IOException {
-        final File file = createTempFile("tmp", null);
-        file.deleteOnExit();
-        helloWorld.write(file);
-        verify(helloWorld).set(any(byte[].class));
-        assertEquals(HelloWorld.SIZE, file.length());
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(File)} method returns specified file.
-     */
-    @Test
-    public void assertWriteFileReturnsSpecifiedFile() throws IOException {
-        final File expected = createTempFile("tmp", null);
-        expected.deleteOnExit();
-        final File actual = helloWorld.write(expected);
-        verify(helloWorld).set(any(byte[].class));
-        assertEquals(expected, actual);
-    }
-
-    // ---------------------------------------------------------------------------------------------------- send(Socket)
-
-    /**
-     * Asserts {@link HelloWorld#send(Socket)} method throws {@code NullPointerException} when the {@code socket}
-     * argument is {@code null}.
-     */
-    @Test
-    public void assertSendSocketThrowsNullPointerExceptionWhenSocketIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.send((Socket) null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#send(Socket)} method sends exactly {@value HelloWorld#SIZE} bytes to the {@code
-     * socket}.
+     * Asserts {@link HelloWorld#write(DataOutput)} method invokes {@link HelloWorld#set(byte[])} method with an array
+     * of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the array to specified data output.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(data) invokes set(array) and writes the array to data")
     @Test
-    public void assertSendSocketSendsExpectedNumberOfBytesToSocket() throws IOException {
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        final Socket socket = mock(Socket.class);
-        when(socket.getOutputStream()).thenReturn(stream);
-        helloWorld.send(socket);
-        verify(socket).getOutputStream();
-        verify(helloWorld).set(any(byte[].class));
-        socket.getOutputStream().flush();
-        assertEquals(HelloWorld.SIZE, stream.size());
+    public void writeData_InvokeSetArrayWriteArrayToData_() throws IOException {
     }
 
     /**
-     * Asserts {@link HelloWorld#send(Socket)} method returns the specified {@code socket}.
+     * Asserts {@link HelloWorld#write(DataOutput)} method returns given data output.
+     *
+     * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(data) returns data")
     @Test
-    public void assertSendSocketReturnsSpecifiedSocket() throws IOException {
-        final OutputStream stream = mock(OutputStream.class);
-        final Socket expected = mock(Socket.class);
-        when(expected.getOutputStream()).thenReturn(stream);
-        final Socket actual = helloWorld.send(expected);
-        verify(expected).getOutputStream();
-        verify(helloWorld).set(any(byte[].class));
-        verify(stream).write(any(byte[].class));
-        assertEquals(expected, actual);
+    public void writeData_ReturnData_() throws IOException {
+        // TODO: implement!
     }
 
-    // ------------------------------------------------------------------------------------------------- put(ByteBuffer)
+    // ----------------------------------------------------- write(Ljava.io.RandomAccessFile;)Ljava.io.RandomAccessFile;
 
     /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@code NullPointerException} when {@code buffer}
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} method throws a {@link NullPointerException} when {@code file}
      * argument is {@code null}.
      */
+    @DisplayName("write(file) throws NullPointerException when file is null")
     @Test
-    public void assertPutBufferThrowsNullPointerExceptionWhenBufferIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.put(null));
-    }
-
-    @Test
-    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThan12NonDirect(
-            @NotEnoughRemaining final ByteBuffer buffer) {
-        assertTrue(buffer.remaining() < HelloWorld.SIZE);
-        assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
+    public void writeFile_NullPointerException_FileIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@link java.nio.BufferOverflowException} when the
-     * value of {@link ByteBuffer#remaining() remaining()} of {@code buffer} argument is less than {@link
-     * HelloWorld#SIZE}.
-     */
-    @Test
-    public void assertPutBufferThrowsBufferOverflowExceptionWhenBufferRemainingIsLessThanHelloWorldSizeDirect(
-            @NotEnoughRemaining @DirectBuffer final ByteBuffer buffer) {
-        assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
-    }
-
-    /**
-     * Provides byte buffers whose {@code remaining()} is equals to {@link HelloWorld#SIZE}.
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} invokes {@link HelloWorld#set(byte[])} method with an array of
+     * {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the array to specified random access file.
      *
-     * @return a stream of arguments of bytes buffers.
+     * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(file) invokes set(array) method and writes the array to file")
     @Test
-    public void assertPutBufferIncreasesBufferPositionByHelloWorldSize(final ByteBuffer buffer) {
-        assert buffer.remaining() >= HelloWorld.SIZE;
-        final int position = buffer.position();
+    public void writeFile_InvokeSetArrayWriteArrayToFiled_() throws IOException {
     }
 
     /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method puts exactly {@value HelloWorld#SIZE} bytes to specified byte
+     * Asserts {@link HelloWorld#write(RandomAccessFile)} method returns specified {@code file}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(file) returns file")
+    @Test
+    void writeFile_ReturnFile_() throws IOException {
+    }
+
+    // ----------------------------------------------------------------- put(Ljava.nio.ByteBuffer;)Ljava.nio.ByteBuffer;
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@link NullPointerException} when {@code buffer}
+     * argument is {@code null}.
+     */
+    @DisplayName("put(buffer) throws NullPointerException when buffer is null")
+    @Test
+    public void putBuffer_NullPointerException_BufferIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.put(null));
+    }
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method throws a {@link BufferOverflowException} when {@link
+     * ByteBuffer#remaining() buffer.remaining} is less than {@link HelloWorld#BYTES}({@value
+     * com.github.jinahya.hello.HelloWorld#BYTES}).
+     */
+    @DisplayName("put(buffer) throws BufferOverflowException when buffer.remaining is less than BYTES")
+    @Test
+    public void putBuffer_BufferOverflowException_BufferRemainingIsNotEnough() {
+        // TODO: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method, when invoked with a byte buffer {@link ByteBuffer#hasArray()
+     * backed by an array}, invokes {@link HelloWorld#set(byte[], int) set(buffer.array, buffer.arrayOffset +
+     * buffer.position)} and increments the {@link ByteBuffer#position(int) buffer.position} by {@value
+     * com.github.jinahya.hello.HelloWorld#BYTES}.
+     */
+    @DisplayName("put(buffer-with-backing-array) invokes set(buffer.array, buffer.arrayOffset + buffer.position)")
+    @Test
+    public void putBufferWithBackingArray_InvokeSetArrayWithIndexAndIncrementPosition_() {
+        // TODO: implement!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method, when invoked with a byte buffer {@link ByteBuffer#hasArray()
+     * not backed by any array}, invokes {@link HelloWorld#set(byte[]) set(byte[12])} method and puts the array to the
      * buffer.
      */
+    @DisplayName("put(buffer-with-no-backing-array) invokes set(array) and put the array to the buffer")
     @Test
-    public void assertPutBufferIncreasesBufferPositionBy12() {
-        {
-            final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.SIZE);
-            helloWorld.put(buffer);
-        }
-        {
-            final ByteBuffer buffer = ByteBuffer.allocateDirect(current().nextInt(HelloWorld.SIZE));
-            assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
-        }
+    public void putBufferWithNoBackingArray_InvokeSetArrayPutArrayToBuffer() {
     }
 
     /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns specified byte buffer.
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns given buffer when the buffer has a backing array.
      */
+    @DisplayName("put(buffer-with-backing-array) returns buffer")
     @Test
-    public void assertPutBufferReturnsSpecifiedBufferDirect(@DirectBuffer final ByteBuffer expected) {
-        assertTrue(expected.remaining() >= HelloWorld.SIZE);
-        assertTrue(expected.isDirect());
-        final ByteBuffer actual = helloWorld.put(expected);
-        assertEquals(expected, actual);
+    public void putBufferWithBackingArray_ReturnBuffer_() {
+        // TODO: implement!
     }
 
-    // -------------------------------------------------------------------------------------- write(WritableByteChannel)
+    /**
+     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns given buffer when the buffer has no backing array.
+     */
+    @DisplayName("put(buffer with no backing array) returns specified buffer")
+    @Test
+    public void putBufferWithNoBackingArray_ReturnBuffer_() {
+        // TODO: implement!
+    }
+
+    // --------------------------- write(Ljava.nio.channels.WritableByteChannel;)Ljava.nio.channels.WritableByteChannel;
 
     /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method throws a {@code NullPointerException} when {@code
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method throws a {@link NullPointerException} when {@code
      * channel} argument is {@code null}.
      */
+    @DisplayName("write(channel) throws NullPointerException when channel is null")
     @Test
-    public void assertWriteChannelThrowsNullPointerExceptionWhenChannelIsNull() {
-        final WritableByteChannel channel = null;
-        assertThrows(NullPointerException.class, () -> helloWorld.write(channel));
+    public void writeChannel_NullPointerException_ChannelIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.write((WritableByteChannel) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method writes {@value HelloWorld#SIZE} bytes to the {@code
-     * channel} argument.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @Test
-    public void assertWriteChannelWritesOfHelloWorldSizeBytes() throws IOException {
-        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        final WritableByteChannel channel = Channels.newChannel(stream);
-        helloWorld.write(channel);
-        verify(helloWorld).write(channel);
-        assertEquals(HelloWorld.SIZE, stream.size());
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method writes {@value HelloWorld#SIZE} bytes to the {@code
-     * channel} argument. This method uses a channel emulating the non-blocking mode.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @Test
-    public void assertWriteChannelWritesOfHelloWorldSizeBytesNonBlockingEmulated() throws IOException {
-        final LongAdder adder = new LongAdder();
-        final WritableByteChannel channel = mock(WritableByteChannel.class);
-        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
-            final ByteBuffer buffer = i.getArgument(0);
-            if (!buffer.hasRemaining()) {
-                return 0;
-            }
-            final int written = current().nextInt(0, buffer.remaining() + 1);
-            buffer.position(buffer.position() + written);
-            adder.add(written);
-            return written;
-        });
-        helloWorld.write(channel);
-        verify((helloWorld)).write(channel);
-        assertEquals(HelloWorld.SIZE, adder.sum());
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method returns specified channel.
-     */
-    @Test
-    public void assertWriteChannelReturnsSpecifiedChannel() throws IOException {
-        final WritableByteChannel expected = mock(WritableByteChannel.class);
-        final WritableByteChannel actual = helloWorld.write(expected);
-        verify(helloWorld).write(expected);
-        assertEquals(expected, actual);
-    }
-
-    // ----------------------------------------------------------------------------------------------------- write(Path)
-
-    /**
-     * Asserts {@link HelloWorld#write(Path)} method throws a {@code NullPointerException} when {@code path} argument is
-     * {@code null}.
-     */
-    @Test
-    public void assertWritePathThrowsNullPointerExceptionWhenPathIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.write((Path) null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(Path)} method writes {@value HelloWorld#SIZE} bytes to specified path.
-     */
-    @Test
-    public void assertWritePathWritesHelloWorldSizeBytesToPath() throws IOException {
-        final Path path = Files.createTempFile(null, null);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                Files.delete(path);
-            } catch (final IOException ioe) {
-                ioe.printStackTrace();
-                fail("failed to delete the temporary file", ioe);
-            }
-        }));
-        helloWorld.write(path);
-        verify(helloWorld).write(path);
-        assertEquals(HelloWorld.SIZE, Files.size(path));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(Path)} method returns specified path.
-     */
-    @Test
-    public void assertWritePathReturnsSpecifiedPath() throws IOException {
-        final Path expected = Files.createTempFile(null, null);
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            try {
-                Files.delete(expected);
-            } catch (final IOException ioe) {
-                ioe.printStackTrace();
-                fail("failed to delete the temporary file", ioe);
-            }
-        }));
-        final Path actual = helloWorld.write(expected);
-        verify(helloWorld).write(expected);
-        assertEquals(expected, actual);
-    }
-
-    // --------------------------------------------------------------------------------------------- send(SocketChannel)
-
-    /**
-     * Asserts {@link HelloWorld#send(SocketChannel)} method throws a {@code NullPointerException} when specified socket
-     * channel is {@code null}.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @Test
-    public void assertSendChannelThrowsNullPointerExceptionIfChannelIsNull() throws IOException {
-        assertThrows(NullPointerException.class, () -> helloWorld.send((SocketChannel) null));
-    }
-
-    /**
-     * Asserts {@link HelloWorld#send(SocketChannel)} method sends {@link HelloWorld#SIZE} bytes to specified socket
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method invokes {@link HelloWorld#put(ByteBuffer)} method
+     * with a byte buffer of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the buffer to specified
      * channel.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(channel) invokes put(buffer) and writes the buffer to the channel")
     @Test
-    public void assertSendChannelSendsHelloWorldSizeBytesToSpecifiedChannel() throws IOException {
-        final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.SIZE);
-        final SocketChannel channel = Mockito.mock(SocketChannel.class);
-        when(channel.write(any(ByteBuffer.class)))
-                .thenAnswer(i -> buffer.put(i.getArgument(0, ByteBuffer.class)).position());
-        helloWorld.send(channel);
-        verify(helloWorld).send(channel);
-        assertFalse(buffer.hasRemaining());
+    public void writeChannel_InvokePutBufferWriteBufferToChannel_() throws IOException {
     }
 
     /**
-     * Asserts {@link HelloWorld#send(SocketChannel)} method sends {@link HelloWorld#SIZE} bytes to specified socket
-     * channel. This method emulates non-blocking channel.
+     * Asserts {@link HelloWorld#write(WritableByteChannel)} method returns given channel.
      *
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("write(channel) returns channel")
     @Test
-    public void assertSendChannelSendsHelloWorldSizeBytesToSpecifiedChannelEmulateNonBlocking() throws IOException {
-        final LongAdder adder = new LongAdder();
-        final SocketChannel channel = mock(SocketChannel.class);
-        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
-            final ByteBuffer buffer = i.getArgument(0);
-            if (!buffer.hasRemaining()) {
-                return 0;
-            }
-            final int written = current().nextInt(buffer.remaining() + 1);
-            buffer.position(buffer.position() + written);
-            adder.add(written);
-            return written;
-        });
-        helloWorld.send(channel);
-        verify(helloWorld).send(channel);
-        assertEquals(HelloWorld.SIZE, adder.sum());
+    public void writeChannel_ReturnChannel_() throws IOException {
+    }
+
+    // ----------------------------------------------------------------- write(Ljava.nio.file.Path;)Ljava.nio.file.Path;
+
+    /**
+     * Asserts {@link HelloWorld#append(Path) append(path)} method throws a {@link NullPointerException} when the {@code
+     * path} argument is {@code null}.
+     */
+    @DisplayName("append(path) throws NullPointerException when path is null")
+    @Test
+    public void appendPath_NullPointerException_PathIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.append((Path) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#send(SocketChannel)} method returns specified socket channel.
+     * Asserts {@link HelloWorld#append(Path) append(path)} method invokes {@link HelloWorld#write(WritableByteChannel)}
+     * method with a channel and asserts {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes are appended to the
+     * {@code path}.
      *
+     * @param tempDir a temporary directory to test with.
      * @throws IOException if an I/O error occurs.
      */
+    @DisplayName("append(path) invokes write(channel)")
     @Test
-    public void assertSendChannelReturnsSpecifiedChannel() throws IOException {
+    public void appendPath_InvokeWriteChannel_(final @TempDir Path tempDir) throws IOException {
+        // TODO: implement!!
+    }
+
+    /**
+     * Asserts {@link HelloWorld#append(Path)} method returns specified {@code path} argument.
+     *
+     * @param tempDir a temporary directory to test with.
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(path) returns path")
+    @Test
+    public void assertAppendPathReturnsPath(@TempDir final Path tempDir) throws IOException {
+        // TODO: implement!!
+    }
+
+    // ---------------------------------------- send(Ljava.nio.channels.SocketChannel;)Ljava.nio.channels.SocketChannel;
+    @Deprecated
+    @Test
+    void testSendSocketChannel() throws IOException {
         final SocketChannel expected = mock(SocketChannel.class);
-        when(expected.write(any(ByteBuffer.class))).thenAnswer(i -> {
+        when(expected.write(any(ByteBuffer.class))).then(i -> {
             final ByteBuffer buffer = i.getArgument(0);
-            final int written = buffer.remaining();
-            buffer.position(buffer.position() + written);
-            return written;
+            final int remaining = buffer.remaining();
+            buffer.position(buffer.position() + remaining); // drain all available bytes
+            return remaining;
+        });
+        when(helloWorld.write(expected)).thenAnswer(i -> {
+            final SocketChannel channel = i.getArgument(0, SocketChannel.class);
+            channel.write(allocate(BYTES));
+            return channel;
         });
         final SocketChannel actual = helloWorld.send(expected);
         assertEquals(expected, actual);
@@ -549,14 +451,59 @@ public class HelloWorldTest {
     // -----------------------------------------------------------------------------------------------------------------
 
     /**
-     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link #helloWorld} to just return the specified array.
+     * Returns a proxy of {@link #helloWorld} whose method arguments and result are validated.
+     *
+     * @return a proxy of {@link #helloWorld}.
      */
-    @BeforeEach
-    private void stubSetArrayWithIndexToReturnSpecifiedArray() {
-        when(helloWorld.set(any(), anyInt())).thenAnswer(i -> i.getArgument(0));
+    HelloWorld helloWorld() {
+        return newValidationProxy(HelloWorld.class, helloWorld);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * Intercepts the result of {@link HelloWorld#set(byte[])} method.
+     */
+    @BeforeEach
+    private void interceptTheResultOfSetArray() {
+        arrayCaptor.captured = false;
+        doAnswer(arrayCaptor).when(helloWorld).set(any(byte[].class));
+    }
+
+    /**
+     * Intercepts the result of {@link HelloWorld#put(ByteBuffer)} method.
+     */
+    @BeforeEach
+    private void interceptTheResultOfPutBuffer() {
+        bufferCaptor.captured = false;
+        doAnswer(bufferCaptor).when(helloWorld).put(any(ByteBuffer.class));
+    }
+
+    /**
+     * Stubs {@link HelloWorld#set(byte[], int)} method of {@link Spy spied} {@code helloWorld} instance to return
+     * specified {@code array}.
+     */
+    @BeforeEach
+    private void stubSetArrayIndexToReturnSpecifiedArray() {
+        when(helloWorld.set(any(byte[].class), anyInt())) // <1>
+                .thenAnswer(i -> i.getArgument(0));       // <2>
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    /**
+     * A result captor for capturing the argument of {@link HelloWorld#set(byte[])} method.
+     */
+    final ResultCaptor<byte[]> arrayCaptor = new ResultCaptor<>();
+
+    /**
+     * A result captor for capturing the argument of {@link HelloWorld#put(ByteBuffer)} method.
+     */
+    final ResultCaptor<ByteBuffer> bufferCaptor = new ResultCaptor<>();
+
+    /**
+     * An injected spy of {@link HelloWorld} interface.
+     */
     @Spy
-    private HelloWorld helloWorld;
+    HelloWorld helloWorld;
 }
