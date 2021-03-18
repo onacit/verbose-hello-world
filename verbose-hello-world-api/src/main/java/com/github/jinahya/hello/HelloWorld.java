@@ -21,8 +21,6 @@ package com.github.jinahya.hello;
  */
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
-import javax.validation.constraints.PositiveOrZero;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -140,7 +138,14 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        return null;
+        final OutputStream stream = new FileOutputStream(file, true);
+        try {
+            write(stream);
+            stream.flush();
+        } finally {
+            stream.close();
+        }
+        return file;
     }
 
     /**
