@@ -1,5 +1,28 @@
 package com.github.jinahya.hello;
 
+/*-
+ * #%L
+ * verbose-hello-world-api
+ * %%
+ * Copyright (C) 2018 - 2019 Jinahya, Inc.
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.PositiveOrZero;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,8 +35,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -66,8 +92,11 @@ public interface HelloWorld {
      * and {@code 0}.
      * @see #set(byte[], int)
      */
-    default void set(final byte[] array) {
-        // TODO: implement!
+    default byte[] set(final byte[] array) {
+        if (array == null) {
+            throw new NullPointerException("array is null");
+        }
+        return null;
     }
 
     /**
@@ -104,8 +133,33 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        set(array, 0);
-        return array;
+        return null;
+    }
+
+    /**
+     * Sends <a href="#hello-world-bytes">hello-world-bytes</a> through specified socket.
+     * <p>
+     * This method invokes {@link #write(OutputStream)} method with specified socket's {@link Socket#getOutputStream()
+     * outputStream}.
+     * <blockquote><pre>{@code
+     * OutputStream stream = socket.getOutputStream();
+     * write(stream);
+     * return socket.
+     * }</pre></blockquote>
+     *
+     * @param socket the socket to which bytes are sent.
+     * @param <T>    socket type parameter
+     * @return given {@code socket}.
+     * @throws NullPointerException if {@code socket} is {@code null}.
+     * @throws IOException          if an I/O error occurs.
+     * @see Socket#getOutputStream()
+     * @see #write(OutputStream)
+     */
+    default <T extends Socket> @NotNull T send(@NotNull final T socket) throws IOException {
+        if (socket == null) {
+            throw new NullPointerException("socket is null");
+        }
+        return null;
     }
 
     /**
@@ -144,10 +198,7 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        final byte[] array = new byte[SIZE];
-        set(array);
-        file.write(array);
-        return file;
+        return null;
     }
 
     /**
@@ -245,112 +296,8 @@ public interface HelloWorld {
      * @see #write(WritableByteChannel)
      * @deprecated Use {@link #write(WritableByteChannel)}.
      */
-    byte[] set(byte[] array, int index);
-
-    /**
-     * Sets {@value SIZE} bytes of {@code hello, world} string on given array starting at {@code 0} index.
-     *
-     * @param array the array to which {@code hello, world} bytes are set.
-     * @return given array.
-     * @throws NullPointerException     if {@code array} is {@code null}
-     * @throws IllegalArgumentException if {@code array.length} is less than {@value SIZE}
-     * @see #set(byte[], int)
-     */
-    default byte[] set(final byte[] array) {
-        if (array == null) {
-            throw new NullPointerException("array is null");
-        }
-        if (array.length < SIZE) {
-            throw new IndexOutOfBoundsException("array.length(" + array.length + ") < " + SIZE);
-        }
-        return set(array, 0);
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Writes {@value #SIZE} bytes of {@code hello, world} on specified output stream and returns the output stream.
-     *
-     * @param stream the output stream on which bytes are written
-     * @param <T>    output stream type parameter
-     * @return given output stream
-     * @throws IOException if an I/O error occurs.
-     */
-    default <T extends OutputStream> T write(final T stream) throws IOException {
-        if (stream == null) {
-            throw new NullPointerException("stream is null");
-        }
-        // @todo: implement!
-        return null;
-    }
-
-    default <T extends File> T write(final T file) throws IOException {
-        if (file == null) {
-            throw new NullPointerException("file is null");
-        }
-        final OutputStream stream = new FileOutputStream(file);
-        try {
-            write(stream);
-            stream.flush();
-        } finally {
-            stream.close();
-        }
-        return file;
-    }
-
-    default <T extends Socket> T send(final T socket) throws IOException {
-        if (socket == null) {
-            throw new NullPointerException("socket is null");
-        }
-        final OutputStream stream = socket.getOutputStream();
-        write(stream);
-        stream.flush();
-        return socket;
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-    default <T extends ByteBuffer> T put(final T buffer) {
-        if (buffer == null) {
-            throw new NullPointerException("buffer is null");
-        }
-        if (buffer.remaining() < SIZE) {
-            throw new BufferOverflowException();
-        }
-        // @todo: implement!
-        return null;
-    }
-
-    default <T extends WritableByteChannel> T write(final T channel) throws IOException {
-        if (channel == null) {
-            throw new NullPointerException("channel is null");
-        }
-        // @todo: implement!
-        return null;
-    }
-
-    /**
-     * Writes {@value SIZE} bytes to specified path.
-     *
-     * @param path the path to which bytes are written.
-     * @param <T> path type parameter
-     * @return specified path
-     * @throws IOException if an I/O error occurs.
-     */
-    default <T extends Path> T write(final T path) throws IOException {
-        if (path == null) {
-            throw new NullPointerException("path is null");
-        }
-        final FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE);
-        write(channel);
-        channel.force(false);
-        return path;
-    }
-
-    default <T extends SocketChannel> T send(final T socket) throws IOException {
-        if (socket == null) {
-            throw new NullPointerException("socket is null");
-        }
-        write(channel);
-        return channel;
+    @Deprecated
+    default <T extends SocketChannel> @NotNull T send(@NotNull final T socket) throws IOException {
+        return write(requireNonNull(socket, "socket is null"));
     }
 }

@@ -21,6 +21,7 @@ package com.github.jinahya.hello;
  */
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,6 +47,7 @@ class HelloWorld_SetArrayTest extends HelloWorldTest {
     @DisplayName("set(null) throws NullPointerException")
     @Test
     void setArray_NullPointerException_ArrayIsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.set(null));
     }
 
     /**
