@@ -119,7 +119,10 @@ public interface HelloWorld {
         if (stream == null) {
             throw new NullPointerException("stream is null");
         }
-        // TODO: implement!
+        final byte[] array = new byte[BYTES];
+        set(array);
+        stream.write(array);
+        return stream;
     }
 
     /**

@@ -23,6 +23,11 @@ package com.github.jinahya.hello;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,5 +62,26 @@ class HelloWorld_WriteOutputStreamTest extends HelloWorldTest {
     @DisplayName("write(stream) invokes set(byte[BYTES]) and writes the array to the stream")
     @Test
     void writeStream_InvokeSetArrayAndWriteArrayToStream_() throws IOException {
+        final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class); // <1>
+        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class); // <1>
+        final OutputStream stream = Mockito.mock(OutputStream.class); // <2>
+        helloWorld.write(stream); // <3>
+        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture()); // <4>
+        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
+        Mockito.verify(stream, Mockito.times(1)).write(arrayCaptor2.capture());
+        Assertions.assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(OutputStream)} method returns given {@code stream}.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(stream) returns the stream")
+    @Test
+    void writeStream_ReturnStream_() throws IOException {
+        final OutputStream expected = Mockito.mock(OutputStream.class); // <1>
+        final OutputStream actual = helloWorld.write(expected); // <2>
+        Assertions.assertSame(expected, actual); // <3>
     }
 }
