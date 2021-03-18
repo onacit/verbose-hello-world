@@ -63,13 +63,13 @@ class HelloWorld_WriteOutputStreamTest extends HelloWorldTest {
     @Test
     void writeStream_InvokeSetArrayAndWriteArrayToStream_() throws IOException {
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class); // <1>
-        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class); // <1>
-        final OutputStream stream = Mockito.mock(OutputStream.class); // <2>
-        helloWorld.write(stream); // <3>
-        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture()); // <4>
-        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
-        Mockito.verify(stream, Mockito.times(1)).write(arrayCaptor2.capture());
-        Assertions.assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue());
+        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class); // <2>
+        final OutputStream stream = Mockito.mock(OutputStream.class); // <3>
+        helloWorld.write(stream); // <4>
+        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture()); // <5>
+        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length); // <6>
+        Mockito.verify(stream, Mockito.times(1)).write(arrayCaptor2.capture()); // <7>
+        Assertions.assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue()); // <8>
     }
 
     /**
