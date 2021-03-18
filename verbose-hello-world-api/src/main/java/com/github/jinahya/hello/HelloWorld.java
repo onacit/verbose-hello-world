@@ -185,7 +185,10 @@ public interface HelloWorld {
         if (data == null) {
             throw new NullPointerException("data is null");
         }
-        // TODO: implement!
+        final byte[] array = new byte[BYTES];
+        set(array);
+        data.write(array);
+        return data;
     }
 
     /**

@@ -24,11 +24,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.io.DataOutput;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.quality.Strictness.LENIENT;
 
 /**
  * A class for testing {@link HelloWorld#write(DataOutput)} method.
@@ -57,5 +66,26 @@ class HelloWorld_WriteDataOutputTest extends HelloWorldTest {
     @DisplayName("write(data) invokes set(array) and writes the array to data")
     @Test
     void writeData_InvokeSetArrayWriteArrayToData_() throws IOException {
+        final DataOutput data = mock(DataOutput.class);
+        helloWorld.write(data);
+        final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
+        verify(helloWorld, times(1)).set(arrayCaptor1.capture());
+        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
+        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
+        verify(data, times(1)).write(arrayCaptor2.capture());
+        assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue());
+    }
+
+    /**
+     * Asserts {@link HelloWorld#write(DataOutput)} method returns given data output.
+     *
+     * @throws IOException if an I/O error occurs.
+     */
+    @DisplayName("write(data) returns data")
+    @Test
+    public void writeData_ReturnData_() throws IOException {
+        final DataOutput expected = mock(DataOutput.class);
+        final DataOutput actual = helloWorld.write(expected);
+        assertSame(expected, actual);
     }
 }
