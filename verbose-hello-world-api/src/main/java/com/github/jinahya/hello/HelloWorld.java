@@ -239,6 +239,17 @@ public interface HelloWorld {
         if (buffer == null) {
             throw new NullPointerException("buffer is null");
         }
+        if (buffer.remaining() < BYTES) {
+            throw new BufferOverflowException();
+        }
+        if (buffer.hasArray()) {
+            set(buffer.array(), buffer.arrayOffset() + buffer.position());
+            buffer.position(buffer.position() + BYTES);
+        } else {
+            final byte[] array = new byte[BYTES];
+            set(array);
+            buffer.put(array);
+        }
         return buffer;
     }
 

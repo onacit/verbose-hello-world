@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
@@ -85,9 +87,9 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
                         buffer.limit(current().nextInt(buffer.position() + HelloWorld.BYTES, buffer.limit()));
                         return buffer;
                     }
+                    return buffer;
                 })
                 .peek(b -> {
-                    Assertions.assertTrue(b.remaining() >= HelloWorld.BYTES);
                     Assertions.assertTrue(b.hasArray());
                 });
     }
@@ -109,7 +111,6 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
                     return buffer;
                 })
                 .peek(b -> {
-                    Assertions.assertTrue(b.remaining() >= HelloWorld.BYTES);
                     Assertions.assertFalse(b.hasArray());
                 });
     }
@@ -133,6 +134,7 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
     @MethodSource({"buffersOfNotEnoughRemaining"})
     @ParameterizedTest
     void putBuffer_BufferOverflowException_BufferRemainingIsNotEnough(final ByteBuffer buffer) {
+        Assertions.assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
     }
 
     /**
@@ -145,6 +147,19 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
     @MethodSource({"buffersHasBackingArray"})
     @ParameterizedTest
     void putBuffer_InvokeSetArrayWithIndexAndIncrementPosition_BufferHasBackingArray(ByteBuffer buffer) {
+        buffer = Mockito.spy(buffer);
+        final byte[] array = buffer.array();
+        final int arrayOffset = buffer.arrayOffset();
+        final int position = buffer.position();
+        helloWorld.put(buffer);
+        final ArgumentCaptor<byte[]> arrayCaptor = ArgumentCaptor.forClass(byte[].class);
+        final ArgumentCaptor<Integer> indexCaptor = ArgumentCaptor.forClass(int.class);
+        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor.capture(), indexCaptor.capture());
+        Assertions.assertSame(array, arrayCaptor.getValue());
+        Assertions.assertEquals(arrayOffset + position, indexCaptor.getValue());
+        final ArgumentCaptor<Integer> positionCaptor = ArgumentCaptor.forClass(int.class);
+        Mockito.verify(buffer, Mockito.times(1)).position(positionCaptor.capture());
+        Assertions.assertEquals(position + HelloWorld.BYTES, positionCaptor.getValue());
     }
 
     /**
@@ -157,6 +172,14 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
     @MethodSource({"buffersHasNoBackingArray"})
     @ParameterizedTest
     void putBuffer_InvokeSetArrayPutArrayToBuffer_BufferHasNoBackingArray(ByteBuffer buffer) {
+        buffer = Mockito.spy(buffer);
+        helloWorld.put(buffer);
+        final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
+        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture());
+        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
+        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
+        Mockito.verify(buffer, Mockito.times(1)).put(arrayCaptor2.capture());
+        Assertions.assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
     }
 
     /**
