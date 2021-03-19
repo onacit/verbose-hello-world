@@ -25,7 +25,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.File;
@@ -68,6 +67,7 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     @DisplayName("append(file) invokes set(array) method and writes the array to file")
     @Test
     void writeFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
+        //final RandomAccessFile file = spy(new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw"));
         final RandomAccessFile file = mock(RandomAccessFile.class);
         helloWorld.write(file);
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
