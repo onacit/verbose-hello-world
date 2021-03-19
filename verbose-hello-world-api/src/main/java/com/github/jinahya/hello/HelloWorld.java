@@ -317,6 +317,13 @@ public interface HelloWorld {
         if (path == null) {
             throw new NullPointerException("path is null");
         }
+        final FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
+        try {
+            write(channel);
+            channel.force(false);
+        } finally {
+            channel.close();
+        }
         return path;
     }
 

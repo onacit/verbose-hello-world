@@ -24,14 +24,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * A class for unit-testing {@link HelloWorld#append(Path)} method.
@@ -62,6 +68,13 @@ class HelloWorld_AppendPathTest extends HelloWorldTest {
     @Test
     void appendPath_InvokeWriteChannel12BytesWritten_(final @TempDir Path tempDir) throws IOException {
         final Path path = Files.createTempFile(tempDir, null, null);
+        final long size = Files.size(path);
+        helloWorld.append(path);
+        final ArgumentCaptor<WritableByteChannel> channelCaptor = ArgumentCaptor.forClass(WritableByteChannel.class);
+        verify(helloWorld, times(1)).write(channelCaptor.capture());
+        final WritableByteChannel channel = channelCaptor.getValue();
+        assertTrue(channel instanceof FileChannel);
+        assertEquals(size + HelloWorld.BYTES, Files.size(path));
     }
 
     /**
