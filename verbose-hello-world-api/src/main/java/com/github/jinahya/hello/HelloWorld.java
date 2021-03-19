@@ -20,7 +20,6 @@ package com.github.jinahya.hello;
  * #L%
  */
 
-import javax.validation.constraints.NotNull;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,13 +31,10 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -325,24 +321,5 @@ public interface HelloWorld {
             channel.close();
         }
         return path;
-    }
-
-    /**
-     * Sends <a href="#hello-world-bytes">hello-world-bytes</a> through specified socket channel and returns the socket
-     * channel.
-     * <p>
-     * This method invokes {@link #write(WritableByteChannel)} method with specified socket channel and returns the
-     * result.
-     *
-     * @param socket the socket channel to which bytes are sent.
-     * @param <T>    socket channel type parameter
-     * @return given {@code socket}.
-     * @throws IOException if an I/O error occurs.
-     * @see #write(WritableByteChannel)
-     * @deprecated Use {@link #write(WritableByteChannel)}.
-     */
-    @Deprecated
-    default <T extends SocketChannel> @NotNull T send(@NotNull final T socket) throws IOException {
-        return write(requireNonNull(socket, "socket is null"));
     }
 }
