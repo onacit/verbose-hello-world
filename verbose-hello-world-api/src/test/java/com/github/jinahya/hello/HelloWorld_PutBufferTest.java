@@ -87,9 +87,9 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
                         buffer.limit(current().nextInt(buffer.position() + HelloWorld.BYTES, buffer.limit()));
                         return buffer;
                     }
-                    return buffer;
                 })
                 .peek(b -> {
+                    Assertions.assertTrue(b.remaining() >= HelloWorld.BYTES);
                     Assertions.assertTrue(b.hasArray());
                 });
     }
@@ -111,6 +111,7 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
                     return buffer;
                 })
                 .peek(b -> {
+                    Assertions.assertTrue(b.remaining() >= HelloWorld.BYTES);
                     Assertions.assertFalse(b.hasArray());
                 });
     }
