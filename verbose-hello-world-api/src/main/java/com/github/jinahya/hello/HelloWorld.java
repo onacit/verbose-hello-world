@@ -282,6 +282,19 @@ public interface HelloWorld {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
+        final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.BYTES);
+        assert buffer.position() == 0;
+        assert buffer.limit() == buffer.capacity();
+        assert buffer.hasArray();;
+        assert buffer.arrayOffset() == 0;
+        put(buffer);
+        assert buffer.position() == buffer.limit();
+        buffer.flip();
+        assert buffer.position() == 0;
+        assert buffer.remaining() == buffer.capacity();
+        while (buffer.hasRemaining()) {
+            channel.write(buffer);
+        }
         return channel;
     }
 

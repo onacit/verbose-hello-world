@@ -23,15 +23,26 @@ package com.github.jinahya.hello;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAccumulator;
+import java.util.concurrent.atomic.LongAdder;
 
+import static java.util.concurrent.ThreadLocalRandom.current;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -62,6 +73,29 @@ class HelloWorld_WriteChannelTest extends HelloWorldTest {
     @DisplayName("write(channel) invokes put(buffer) and writes the buffer to the channel")
     @Test
     void writeChannel_InvokePutBufferWriteBufferToChannel_() throws IOException {
+        final WritableByteChannel channel = mock(WritableByteChannel.class);
+        final LongAdder adder = new LongAdder();
+        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
+            final ByteBuffer buffer = i.getArgument(0, ByteBuffer.class);
+            final int written = current().nextInt(0, buffer.remaining() + 1);
+            adder.add(written);
+            buffer.position(buffer.position() + written);
+            return written;
+        });
+        helloWorld.write(channel);
+        assertEquals(HelloWorld.BYTES, adder.sum());
+        final ArgumentCaptor<ByteBuffer> bufferCaptor1 = ArgumentCaptor.forClass(ByteBuffer.class);
+        verify(helloWorld, times(1)).put(bufferCaptor1.capture());
+        final ByteBuffer capturedBuffer1 = bufferCaptor1.getValue();
+        assertNotNull(capturedBuffer1);
+        assertEquals(HelloWorld.BYTES, capturedBuffer1.capacity());
+        assertEquals(capturedBuffer1.capacity(), capturedBuffer1.limit());
+        assertFalse(capturedBuffer1.hasRemaining());
+        final ArgumentCaptor<ByteBuffer> bufferCaptor2 = ArgumentCaptor.forClass(ByteBuffer.class);
+        verify(channel, atLeast(1)).write(bufferCaptor2.capture());
+        final ByteBuffer capturedBuffer2 = bufferCaptor2.getValue();
+        assertSame(capturedBuffer2, capturedBuffer1);
+        assertFalse(capturedBuffer2.hasRemaining());
     }
 
     /**
