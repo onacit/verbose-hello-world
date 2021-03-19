@@ -208,7 +208,10 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        return null;
+        final byte[] array = new byte[BYTES];
+        set(array);
+        file.write(array);
+        return file;
     }
 
     /**
