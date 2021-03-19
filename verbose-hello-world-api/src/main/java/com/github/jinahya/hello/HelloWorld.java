@@ -32,6 +32,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -285,7 +286,7 @@ public interface HelloWorld {
         final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.BYTES);
         assert buffer.position() == 0;
         assert buffer.limit() == buffer.capacity();
-        assert buffer.hasArray();;
+        assert buffer.hasArray();
         assert buffer.arrayOffset() == 0;
         put(buffer);
         assert buffer.position() == buffer.limit();
