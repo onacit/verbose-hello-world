@@ -31,9 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 /**
  * A class for testing {@link HelloWorld#append(RandomAccessFile)} method.
  *
@@ -68,10 +65,10 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
         helloWorld.append(file);
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
         Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture());
-        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
+        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
         final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
         Mockito.verify(file, Mockito.times(1)).write(arrayCaptor2.capture());
-        assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
+        Assertions.assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
     }
 
     /**
@@ -85,7 +82,7 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
 //        final RandomAccessFile expected = new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw");
         final RandomAccessFile expected = Mockito.mock(RandomAccessFile.class);
-        final RandomAccessFile actual = helloWorld.write(expected);
+        final RandomAccessFile actual = helloWorld.append(expected);
         Assertions.assertSame(expected, actual);
     }
 }
