@@ -68,14 +68,15 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     @DisplayName("append(file) invokes set(array) method and writes the array to file")
     @Test
     void appendFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
-        final RandomAccessFile file = spy(new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw"));
-        helloWorld.append(file);
-        final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
-        verify(helloWorld, times(1)).set(arrayCaptor1.capture());
-        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
-        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
-        verify(file, times(1)).write(arrayCaptor2.capture());
-        assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
+        try (RandomAccessFile file = spy(new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw"))) { // <1>
+            final long length = file.length();
+            helloWorld.append(file);
+            verify(file, times(1)).seek(length);
+            final ArgumentCaptor<RandomAccessFile> fileCaptor = ArgumentCaptor.forClass(RandomAccessFile.class);
+            verify(helloWorld, times(1)).write(fileCaptor.capture());
+            assertEquals(file, fileCaptor.getValue());
+            assertEquals(length + HelloWorld.BYTES, file.length());
+        }
     }
 
     /**
@@ -87,8 +88,9 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     @DisplayName("append(file) returns file")
     @Test
     void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
-        final RandomAccessFile expected = new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw");
-        final RandomAccessFile actual = helloWorld.append(expected);
-        assertSame(expected, actual);
+        try (RandomAccessFile expected = new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw")) {
+            final RandomAccessFile actual = helloWorld.append(expected);
+            assertSame(expected, actual);
+        }
     }
 }

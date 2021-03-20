@@ -231,7 +231,8 @@ public interface HelloWorld {
             throw new NullPointerException("file is null");
         }
         file.seek(file.length());
-        // TODO: implement!
+        write(file);
+        return file;
     }
 
     // -----------------------------------------------------------------------------------------------------------------
