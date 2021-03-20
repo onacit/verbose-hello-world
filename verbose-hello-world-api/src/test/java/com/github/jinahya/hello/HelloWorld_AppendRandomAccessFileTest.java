@@ -21,6 +21,7 @@ package com.github.jinahya.hello;
  */
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -30,6 +31,14 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
+import static java.io.File.createTempFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * A class for testing {@link HelloWorld#append(RandomAccessFile)} method.
@@ -59,15 +68,14 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     @DisplayName("append(file) invokes set(array) method and writes the array to file")
     @Test
     void appendFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
-        final RandomAccessFile file
-                = Mockito.spy(new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw"));
+        final RandomAccessFile file = spy(new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw"));
         helloWorld.append(file);
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
-        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture());
-        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
+        verify(helloWorld, times(1)).set(arrayCaptor1.capture());
+        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
         final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
-        Mockito.verify(file, Mockito.times(1)).write(arrayCaptor2.capture());
-        Assertions.assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
+        verify(file, times(1)).write(arrayCaptor2.capture());
+        assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
     }
 
     /**
@@ -79,8 +87,8 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     @DisplayName("append(file) returns file")
     @Test
     void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
-        final RandomAccessFile expected = new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw");
+        final RandomAccessFile expected = new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw");
         final RandomAccessFile actual = helloWorld.append(expected);
-        Assertions.assertSame(expected, actual);
+        assertSame(expected, actual);
     }
 }
