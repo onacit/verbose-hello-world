@@ -77,7 +77,10 @@ interface AsynchronousHelloWorld extends HelloWorld {
     // ----------------------------------------------------------------------------------------- AsynchronousFileChannel
 
     /**
-     * Writes the {@code hello-world-bytes} to specified channel starting at the given file position.
+     * Writes the {@code hello-world-bytes} to specified channel starting at the given file position. This method
+     * invokes {@link #put(ByteBuffer)}} with a byte buffer of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes
+     * and, after flips it, writes all remaining bytes of the buffer to specified asynchronous file channel starting at
+     * the given file position.
      *
      * @param channel  the channel to which bytes are written.
      * @param position The file position at which bytes are written; must be non-negative.

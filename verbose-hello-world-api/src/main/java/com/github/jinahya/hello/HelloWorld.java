@@ -20,7 +20,6 @@ package com.github.jinahya.hello;
  * #L%
  */
 
-import javax.validation.constraints.NotNull;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -32,11 +31,13 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.FileChannel;
-import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+
+import static java.nio.ByteBuffer.allocate;
+import static java.nio.ByteBuffer.allocateDirect;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -305,7 +306,7 @@ public interface HelloWorld {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
-        final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.BYTES);
+        final ByteBuffer buffer = allocate(HelloWorld.BYTES);
         assert buffer.position() == 0;
         assert buffer.limit() == buffer.capacity();
         assert buffer.hasArray();
@@ -347,5 +348,32 @@ public interface HelloWorld {
             channel.close();
         }
         return path;
+    }
+
+    /**
+     * Returns a byte array contains the <a href="#hello-world-bytes">hello-world-bytes</a> bytes.
+     *
+     * @return an array of <a href="#hello-world-bytes">hello-world-bytes</a>.
+     */
+    default byte[] array() {
+        return set(new byte[BYTES]);
+    }
+
+    /**
+     * Returns a ready-to-be-written byte buffer bytes contains the <a href="#hello-world-bytes">hello-world-bytes</a>.
+     *
+     * @return a byte buffer of <a href="#hello-world-bytes">hello-world-bytes</a>.
+     */
+    default ByteBuffer buffer() {
+        return (ByteBuffer) put(allocate(BYTES)).flip();
+    }
+
+    /**
+     * Returns a ready-to-be-written direct byte buffer contains the <a href="#hello-world-bytes">hello-world-bytes</a>.
+     *
+     * @return a byte buffer of <a href="#hello-world-bytes">hello-world-bytes</a>.
+     */
+    default ByteBuffer directBuffer() {
+        return (ByteBuffer) put(allocateDirect(BYTES)).flip();
     }
 }
