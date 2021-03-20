@@ -32,11 +32,15 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
-import static java.io.File.createTempFile;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.spy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * A class for testing {@link HelloWorld#write(RandomAccessFile)} method.
@@ -70,8 +74,8 @@ class HelloWorld_WriteRandomAccessFileTest extends HelloWorldTest {
         final File file = File.createTempFile("tmp", null, tempDir); // <1>
         helloWorld.append(file); // <2>
         final ArgumentCaptor<OutputStream> streamCaptor = ArgumentCaptor.forClass(OutputStream.class); // <3>
-        Mockito.verify(helloWorld, Mockito.times(1)).write(streamCaptor.capture()); // <4>
-        Assertions.assertTrue(streamCaptor.getValue() instanceof FileOutputStream); // <5>
+        verify(helloWorld, times(1)).write(streamCaptor.capture()); // <4>
+        assertTrue(streamCaptor.getValue() instanceof FileOutputStream); // <5>
     }
 
     /**
