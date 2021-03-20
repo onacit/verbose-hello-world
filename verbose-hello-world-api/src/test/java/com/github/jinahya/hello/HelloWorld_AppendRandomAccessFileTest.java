@@ -23,10 +23,9 @@ package com.github.jinahya.hello;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,18 +33,12 @@ import java.io.RandomAccessFile;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * A class for testing {@link HelloWorld#append(RandomAccessFile)} method.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
-//@MockitoSettings(strictness = LENIENT)
-@ExtendWith({MockitoExtension.class})
 @Slf4j
 class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
 
@@ -68,15 +61,16 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
      */
     @DisplayName("append(file) invokes set(array) method and writes the array to file")
     @Test
-    void writeFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
-        //final RandomAccessFile file = spy(new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw"));
-        final RandomAccessFile file = mock(RandomAccessFile.class);
-        helloWorld.write(file);
+    void appendFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
+//        final RandomAccessFile file
+//                = Mockito.spy(new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw"));
+        final RandomAccessFile file = Mockito.mock(RandomAccessFile.class);
+        helloWorld.append(file);
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
-        verify(helloWorld, times(1)).set(arrayCaptor1.capture());
+        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture());
         assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
         final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
-        verify(file, times(1)).write(arrayCaptor2.capture());
+        Mockito.verify(file, Mockito.times(1)).write(arrayCaptor2.capture());
         assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
     }
 
@@ -88,8 +82,10 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
      */
     @DisplayName("append(file) returns file")
     @Test
-    void writeFile_ReturnFile_() throws IOException {
-        final RandomAccessFile expected = mock(RandomAccessFile.class);
-        assertSame(expected, helloWorld.write(expected));
+    void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
+//        final RandomAccessFile expected = new RandomAccessFile(File.createTempFile("tmp", null, tempDir), "rw");
+        final RandomAccessFile expected = Mockito.mock(RandomAccessFile.class);
+        final RandomAccessFile actual = helloWorld.write(expected);
+        Assertions.assertSame(expected, actual);
     }
 }
