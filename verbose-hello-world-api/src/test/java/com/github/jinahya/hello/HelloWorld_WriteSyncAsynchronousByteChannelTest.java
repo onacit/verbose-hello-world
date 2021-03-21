@@ -32,9 +32,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.LongAdder;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -84,6 +86,12 @@ class HelloWorld_WriteSyncAsynchronousByteChannelTest extends HelloWorldTest {
         final ArgumentCaptor<ByteBuffer> bufferCaptor1 = ArgumentCaptor.forClass(ByteBuffer.class);
         verify(helloWorld, times(1)).put(bufferCaptor1.capture());
         final ByteBuffer buffer1 = bufferCaptor1.getValue();
+        final ArgumentCaptor<ByteBuffer> bufferCaptor2 = ArgumentCaptor.forClass(ByteBuffer.class);
+        verify(channel, atLeastOnce()).write(bufferCaptor2.capture());
+        bufferCaptor2.getAllValues().forEach(b -> {
+            assertSame(buffer1, b);
+        });
+        assertEquals(HelloWorld.BYTES, writtenAdder.sum());
     }
 
     /**

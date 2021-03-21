@@ -35,6 +35,9 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.ByteBuffer.allocateDirect;
@@ -351,29 +354,72 @@ public interface HelloWorld {
     }
 
     /**
-     * Returns a byte array contains the <a href="#hello-world-bytes">hello-world-bytes</a> bytes.
+     * Writes, synchronously, the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
-     * @return an array of <a href="#hello-world-bytes">hello-world-bytes</a>.
+     * @param channel the channel to which bytes are written.
+     * @param <T>     channel type parameter
+     * @return A future representing the result of the operation.
+     * @throws InterruptedException if interrupted while working.
+     * @throws ExecutionException   if failed to execute.
+     * @implSpec The implementation in this class invokes {@link #put(ByteBuffer)} method with a byte buffer of {@value
+     * com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the buffer to specified channel using {@link
+     * AsynchronousByteChannel#write(ByteBuffer)} method.
      */
-    default byte[] array() {
-        return set(new byte[BYTES]);
+    default <T extends AsynchronousByteChannel> T writeSync(final T channel)
+            throws InterruptedException, ExecutionException {
+        if (channel == null) {
+            throw new NullPointerException("channel is null");
+        }
+        final ByteBuffer buffer = allocate(BYTES);
+        put(buffer);
+        buffer.flip();
+        while (buffer.hasRemaining()) {
+            final Future<Integer> future = channel.write(buffer);
+            final int written = future.get();
+        }
+        return channel;
     }
 
     /**
-     * Returns a ready-to-be-written byte buffer bytes contains the <a href="#hello-world-bytes">hello-world-bytes</a>.
+     * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
-     * @return a byte buffer of <a href="#hello-world-bytes">hello-world-bytes</a>.
+     * @param channel the channel to which bytes are written.
+     * @param <T>     channel type parameter
+     * @return A future representing the result of the operation.
+     * @throws InterruptedException if interrupted while working.
+     * @throws ExecutionException   if failed to execute.
+     * @see #writeCompletable(AsynchronousByteChannel)
      */
-    default ByteBuffer buffer() {
-        return (ByteBuffer) put(allocate(BYTES)).flip();
+    default <T extends AsynchronousByteChannel> Future<Void> write(final T channel)
+            throws InterruptedException, ExecutionException {
+        if (channel == null) {
+            throw new NullPointerException("channel is null");
+        }
+        final ByteBuffer buffer = allocate(BYTES);
+        put(buffer);
+        buffer.flip();
+        while (buffer.hasRemaining()) {
+            final Future<Integer> future = channel.write(buffer);
+            final int written = future.get();
+        }
+        return null;
     }
 
     /**
-     * Returns a ready-to-be-written direct byte buffer contains the <a href="#hello-world-bytes">hello-world-bytes</a>.
+     * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
-     * @return a byte buffer of <a href="#hello-world-bytes">hello-world-bytes</a>.
+     * @param channel the channel to which bytes are written.
+     * @param <T>     channel type parameter
+     * @return a completable future.
+     * @see #write(AsynchronousByteChannel)
      */
-    default ByteBuffer directBuffer() {
-        return (ByteBuffer) put(allocateDirect(BYTES)).flip();
+    default <T extends AsynchronousByteChannel> CompletableFuture<T> writeCompletable(final T channel) {
+        if (channel == null) {
+            throw new NullPointerException("channel is null");
+        }
+        final ByteBuffer buffer = allocate(BYTES);
+        put(buffer);
+        buffer.flip();
+        return null;
     }
 }
