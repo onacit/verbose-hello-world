@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
@@ -76,19 +77,5 @@ class HelloWorld_SendSocketTest extends HelloWorldTest {
                 = ArgumentCaptor.forClass(OutputStream.class);
         Mockito.verify(helloWorld, Mockito.times(1)).write(streamCaptor.capture()); // <7>
         assertSame(stream, streamCaptor.getValue()); // <8>
-    }
-
-    /**
-     * Asserts {@link HelloWorld#send(Socket)} method returns the specified socket.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("send(socket) returns socket")
-    @Test
-    void sendSocket_ReturnSocket_() throws IOException {
-        final Socket expected = mock(Socket.class); // <1>
-        when(expected.getOutputStream()).thenReturn(mock(OutputStream.class)); // <2>
-        final Socket actual = helloWorld.send(expected); // <3>
-        assertSame(expected, actual); // <4>
     }
 }
