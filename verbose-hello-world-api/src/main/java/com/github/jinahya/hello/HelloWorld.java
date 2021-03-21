@@ -31,6 +31,7 @@ import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
@@ -43,7 +44,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import static java.nio.ByteBuffer.allocate;
-import static java.util.Objects.requireNonNull;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -346,7 +346,7 @@ public interface HelloWorld {
     /**
      * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
-     * @param channel the channel to which bytes are written.
+     * @param channel  the channel to which bytes are written.
      * @param executor an executor for running a task.
      * @return a completable future representing the result of the operation.
      */
@@ -360,7 +360,25 @@ public interface HelloWorld {
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
-        // TODO: implement!
-        return null;
+        final CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+        channel.write(
+                buffer,
+                null,
+                new CompletionHandler<Integer, Void>() {
+                    @Override
+                    public void completed(final Integer result, final Void attachment) {
+                        if (!buffer.hasRemaining()) {
+                            future.complete(null);
+                        } else {
+                            channel.write(buffer, attachment, this);
+                        }
+                    }
+
+                    @Override
+                    public void failed(final Throwable exc, final Void attachment) {
+                        future.completeExceptionally(exc);
+                    }
+                });
+        return future;
     }
 }

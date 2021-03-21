@@ -30,9 +30,9 @@ import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.LongAdder;
 
+import static java.util.concurrent.ForkJoinPool.commonPool;
 import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -96,7 +96,7 @@ class HelloWorld_WriteAsync_AsynchronousByteChannel_Executor_Test extends HelloW
         })
                 .when(channel)
                 .write(any(ByteBuffer.class), any(), any(CompletionHandler.class));
-        final CompletableFuture<Void> future = helloWorld.writeAsync(channel, ForkJoinPool.commonPool());
+        final CompletableFuture<Void> future = helloWorld.writeAsync(channel, commonPool());
         assertNotNull(future);
         final Void got = future.get();
         assertNull(got);
