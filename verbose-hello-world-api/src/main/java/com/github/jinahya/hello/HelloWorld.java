@@ -34,7 +34,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.RandomAccess;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -93,13 +93,7 @@ public interface HelloWorld {
      * @see #set(byte[], int)
      */
     default void set(final byte[] array) {
-        if (array == null) {
-            throw new NullPointerException("array is null");
-        }
-        if (array.length < BYTES) {
-            throw new IndexOutOfBoundsException("array.length(" + array.length + ") < " + BYTES);
-        }
-        set(array, 0);
+        // TODO: implement!
     }
 
     /**
@@ -118,9 +112,7 @@ public interface HelloWorld {
         if (stream == null) {
             throw new NullPointerException("stream is null");
         }
-        final byte[] array = new byte[BYTES];
-        set(array);
-        stream.write(array);
+        // TODO: implement!
     }
 
     /**
@@ -138,13 +130,7 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        final OutputStream stream = new FileOutputStream(file, true);
-        try {
-            write(stream);
-            stream.flush();
-        } finally {
-            stream.close();
-        }
+        // TODO: implement!
     }
 
     /**
@@ -162,7 +148,7 @@ public interface HelloWorld {
         if (socket == null) {
             throw new NullPointerException("socket is null");
         }
-        write(socket.getOutputStream());
+        // TODO: implement!
     }
 
     /**
@@ -181,9 +167,7 @@ public interface HelloWorld {
         if (data == null) {
             throw new NullPointerException("data is null");
         }
-        final byte[] array = new byte[BYTES];
-        set(array);
-        data.write(array);
+        // TODO: implement!
     }
 
     /**
@@ -203,9 +187,7 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        final byte[] array = new byte[BYTES];
-        set(array);
-        file.write(array);
+        // TODO: implement!
     }
 
     /**
@@ -213,8 +195,6 @@ public interface HelloWorld {
      * successful return, is incremented by {@value com.github.jinahya.hello.HelloWorld#BYTES}.
      *
      * @param buffer the byte buffer on which bytes are put.
-     * @param <T>    byte buffer type parameter
-     * @return given {@code buffer}.
      * @throws NullPointerException    if {@code buffer} is {@code null}.
      * @throws BufferOverflowException if {@link ByteBuffer#remaining() buffer.remaining} is less than {@value
      *                                 com.github.jinahya.hello.HelloWorld#BYTES}.
@@ -229,7 +209,7 @@ public interface HelloWorld {
      * @see #set(byte[])
      * @see ByteBuffer#put(byte[])
      */
-    default <T extends ByteBuffer> T put(final T buffer) {
+    default void put(final ByteBuffer buffer) {
         if (buffer == null) {
             throw new NullPointerException("buffer is null");
         }
@@ -244,7 +224,6 @@ public interface HelloWorld {
             set(array);
             buffer.put(array);
         }
-        return buffer;
     }
 
     /**
@@ -276,19 +255,6 @@ public interface HelloWorld {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
-        final ByteBuffer buffer = allocate(HelloWorld.BYTES);
-        assert buffer.position() == 0;
-        assert buffer.limit() == buffer.capacity();
-        assert buffer.hasArray();
-        assert buffer.arrayOffset() == 0;
-        put(buffer);
-        assert buffer.position() == buffer.limit();
-        buffer.flip();
-        assert buffer.position() == 0;
-        assert buffer.remaining() == buffer.capacity();
-        while (buffer.hasRemaining()) {
-            channel.write(buffer);
-        }
         return channel;
     }
 
@@ -309,13 +275,6 @@ public interface HelloWorld {
     default <T extends Path> T append(final T path) throws IOException {
         if (path == null) {
             throw new NullPointerException("path is null");
-        }
-        final FileChannel channel = FileChannel.open(path, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
-        try {
-            write(channel);
-            channel.force(false);
-        } finally {
-            channel.close();
         }
         return path;
     }
@@ -340,10 +299,7 @@ public interface HelloWorld {
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
-        while (buffer.hasRemaining()) {
-            final Future<Integer> future = channel.write(buffer);
-            final int written = future.get();
-        }
+        // TODO: implement!
         return channel;
     }
 
@@ -351,24 +307,16 @@ public interface HelloWorld {
      * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
      * @param channel the channel to which bytes are written.
-     * @param <T>     channel type parameter
      * @return A future representing the result of the operation.
-     * @throws InterruptedException if interrupted while working.
-     * @throws ExecutionException   if failed to execute.
-     * @see #writeCompletable(AsynchronousByteChannel)
      */
-    default <T extends AsynchronousByteChannel> Future<Void> write(final T channel)
-            throws InterruptedException, ExecutionException {
+    default Future<Void> write(final AsynchronousByteChannel channel) {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
-        while (buffer.hasRemaining()) {
-            final Future<Integer> future = channel.write(buffer);
-            final int written = future.get();
-        }
+        // TODO: implement!
         return null;
     }
 

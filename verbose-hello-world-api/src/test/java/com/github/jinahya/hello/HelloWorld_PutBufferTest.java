@@ -135,7 +135,7 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
     @MethodSource({"buffersOfNotEnoughRemaining"})
     @ParameterizedTest
     void putBuffer_BufferOverflowException_BufferRemainingIsNotEnough(final ByteBuffer buffer) {
-        Assertions.assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
+        assertThrows(BufferOverflowException.class, () -> helloWorld.put(buffer));
     }
 
     /**
@@ -143,12 +143,15 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
      * ByteBuffer#hasArray() backing array}, invokes {@link HelloWorld#set(byte[], int) set(buffer.array,
      * buffer.arrayOffset + buffer.position)} and increments the {@link ByteBuffer#position(int) buffer.position} by
      * {@value HelloWorld#BYTES}.
+     *
+     * @param buffer a spied byte buffer.
      */
-    @DisplayName("put(buffer-with-backing-array) invokes set(buffer.array, buffer.arrayOffset + buffer.position)")
+    @DisplayName("put(buffer-with-backing-array) invokes set(array, index) and increments position")
     @MethodSource({"buffersHasBackingArray"})
     @ParameterizedTest
-    void putBuffer_InvokeSetArrayWithIndexAndIncrementPosition_BufferHasBackingArray(ByteBuffer buffer) {
-        buffer = Mockito.spy(buffer);
+    void putBuffer_InvokeSetArrayWithIndexAndIncrementPosition_BufferHasBackingArray(final ByteBuffer buffer) {
+        assert buffer.remaining() >= HelloWorld.BYTES;
+        assert buffer.hasArray();
         final byte[] array = buffer.array();
         final int arrayOffset = buffer.arrayOffset();
         final int position = buffer.position();
@@ -172,8 +175,9 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
     @DisplayName("put(buffer-with-no-backing-array) invokes set(array) and put the array to the buffer")
     @MethodSource({"buffersHasNoBackingArray"})
     @ParameterizedTest
-    void putBuffer_InvokeSetArrayPutArrayToBuffer_BufferHasNoBackingArray(ByteBuffer buffer) {
-        buffer = Mockito.spy(buffer);
+    void putBuffer_InvokeSetArrayPutArrayToBuffer_BufferHasNoBackingArray(final ByteBuffer buffer) {
+        assert buffer.remaining() >= HelloWorld.BYTES;
+        assert !buffer.hasArray();
         helloWorld.put(buffer);
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
         Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture());
@@ -181,27 +185,5 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
         final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
         Mockito.verify(buffer, Mockito.times(1)).put(arrayCaptor2.capture());
         Assertions.assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns given buffer when the buffer has a backing array.
-     */
-    @DisplayName("put(buffer-with-backing-array) returns buffer")
-    @MethodSource({"buffersHasBackingArray"})
-    @ParameterizedTest
-    void putBuffer_ReturnBuffer_BufferHasBackingArray(final ByteBuffer expected) {
-        final ByteBuffer actual = helloWorld.put(expected);
-        Assertions.assertSame(expected, actual);
-    }
-
-    /**
-     * Asserts {@link HelloWorld#put(ByteBuffer)} method returns given buffer when the buffer has no backing array.
-     */
-    @DisplayName("put(buffer with no backing array) returns specified buffer")
-    @MethodSource({"buffersHasBackingArray"})
-    @ParameterizedTest
-    void putBuffer_ReturnBuffer_BufferHasNoBackingArray(final ByteBuffer expected) {
-        final ByteBuffer actual = helloWorld.put(expected);
-        Assertions.assertSame(expected, actual);
     }
 }
