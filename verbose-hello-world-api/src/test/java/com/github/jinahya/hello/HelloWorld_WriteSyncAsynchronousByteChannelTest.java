@@ -91,6 +91,6 @@ class HelloWorld_WriteSyncAsynchronousByteChannelTest extends HelloWorldTest {
         bufferCaptor2.getAllValues().forEach(b -> {
             assertSame(buffer1, b);
         });
-        assertEquals(HelloWorld.BYTES, writtenAdder.sum());
+        assertEquals(HelloWorld.BYTES, writtenSoFar.sum());
     }
 }

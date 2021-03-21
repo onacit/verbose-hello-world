@@ -293,7 +293,10 @@ public interface HelloWorld {
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
-        // TODO: implement!
+        while (buffer.hasRemaining()) {
+            final Future<Integer> future = channel.write(buffer);
+            final int written = future.get(); // InterruptedException, ExecutionException
+        }
     }
 
     /**
