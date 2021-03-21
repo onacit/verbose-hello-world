@@ -39,7 +39,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * A class for testing {@link HelloWorld#write(RandomAccessFile)} method.
+ * A class for testing {@link HelloWorld#writeAsync(RandomAccessFile)} method.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
@@ -47,17 +47,17 @@ import static org.mockito.Mockito.verify;
 class HelloWorld_WriteRandomAccessFileTest extends HelloWorldTest {
 
     /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} method throws a {@link NullPointerException} when {@code file}
+     * Asserts {@link HelloWorld#writeAsync(RandomAccessFile)} method throws a {@link NullPointerException} when {@code file}
      * argument is {@code null}.
      */
     @DisplayName("write(file) throws NullPointerException when file is null")
     @Test
     void writeFile_NullPointerException_FileIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.write((RandomAccessFile) null));
+        assertThrows(NullPointerException.class, () -> helloWorld.writeAsync((RandomAccessFile) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} invokes {@link HelloWorld#set(byte[])} method with an array of
+     * Asserts {@link HelloWorld#writeAsync(RandomAccessFile)} invokes {@link HelloWorld#set(byte[])} method with an array of
      * {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and invokes {@link RandomAccessFile#write(byte[])}
      * method on {@code file} with the array.
      *
