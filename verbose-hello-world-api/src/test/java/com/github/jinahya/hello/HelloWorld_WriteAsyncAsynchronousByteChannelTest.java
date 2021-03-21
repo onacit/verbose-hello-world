@@ -29,7 +29,7 @@ import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.LongAdder;
 
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
@@ -86,7 +86,7 @@ class HelloWorld_WriteAsyncAsynchronousByteChannelTest extends HelloWorldTest {
         })
                 .when(channel)
                 .write(any(ByteBuffer.class), any(), any(CompletionHandler.class));
-        final CompletableFuture<Void> future = helloWorld.writeAsync(channel);
+        final CompletableFuture<Void> future = helloWorld.writeAsync(channel, ForkJoinPool.commonPool());
         assertNotNull(future);
         final Void got = future.get();
         assertNull(got);

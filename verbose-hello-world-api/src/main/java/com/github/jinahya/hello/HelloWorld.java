@@ -38,6 +38,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -309,7 +310,7 @@ public interface HelloWorld {
      * @return A future representing the result of the operation.
      */
     @SuppressWarnings({"unchecked"})
-    default Future<Void> writeAsync(final AsynchronousByteChannel channel, final ExecutorService service) {
+    default Future<Void> write(final AsynchronousByteChannel channel, final ExecutorService service) {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
@@ -345,9 +346,10 @@ public interface HelloWorld {
      * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
      * @param channel the channel to which bytes are written.
+     * @param executor an executor for creating a completable future.
      * @return a completable future representing the result of the operation.
      */
-    default CompletableFuture<Void> writeAsync(final AsynchronousByteChannel channel) {
+    default CompletableFuture<Void> writeAsync(final AsynchronousByteChannel channel, final Executor executor) {
         if (channel == null) {
             throw new NullPointerException("channel is null");
         }
