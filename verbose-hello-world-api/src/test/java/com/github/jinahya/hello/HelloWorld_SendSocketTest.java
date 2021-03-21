@@ -25,7 +25,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 
@@ -36,6 +35,9 @@ import java.net.Socket;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
@@ -68,14 +70,14 @@ class HelloWorld_SendSocketTest extends HelloWorldTest {
     @DisplayName("send(socket) invokes write(socket.outputStream)")
     @Test
     void sendSocket_InvokeWriteStreamWithSocketOutputStream_() throws IOException {
-        final OutputStream stream = mock(OutputStream.class); // <1>
-        final Socket socket = mock(Socket.class);             // <2>
+        final Socket socket = spy(new Socket());              // <1>
+        final OutputStream stream = mock(OutputStream.class); // <2>
         when(socket.getOutputStream()).thenReturn(stream);    // <3>
-        helloWorld.send(socket);                                      // <4>
-        Mockito.verify(socket, Mockito.times(1)).getOutputStream();   // <5>
-        final ArgumentCaptor<OutputStream> streamCaptor               // <6>
+        helloWorld.send(socket);                              // <1>
+        verify(socket, times(1)).getOutputStream();           // <2>
+        final ArgumentCaptor<OutputStream> streamCaptor
                 = ArgumentCaptor.forClass(OutputStream.class);
-        Mockito.verify(helloWorld, Mockito.times(1)).write(streamCaptor.capture()); // <7>
+        verify(helloWorld, times(1)).write(streamCaptor.capture()); // <7>
         assertSame(stream, streamCaptor.getValue()); // <8>
     }
 }
