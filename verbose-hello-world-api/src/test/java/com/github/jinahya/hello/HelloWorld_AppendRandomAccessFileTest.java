@@ -21,18 +21,17 @@ package com.github.jinahya.hello;
  */
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import static java.io.File.createTempFile;
+import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -72,11 +71,12 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
             assert file.length() == 0L;
             assert file.getFilePointer() == 0L;
             final long length = file.length();
+            final long filePointer = file.getFilePointer();
             helloWorld.append(file);
-            verify(file, times(1)).seek(length);
             final ArgumentCaptor<RandomAccessFile> fileCaptor = ArgumentCaptor.forClass(RandomAccessFile.class);
             verify(helloWorld, times(1)).write(fileCaptor.capture());
-            assertEquals(file, fileCaptor.getValue());
+            assertSame(file, fileCaptor.getValue());
+            assertEquals(filePointer, file.getFilePointer());
             assertEquals(length + HelloWorld.BYTES, file.length());
         }
     }

@@ -225,8 +225,10 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
+        final long filePointer = file.getFilePointer();
         file.seek(file.length());
         write(file);
+        file.seek(filePointer);
     }
 
     // -----------------------------------------------------------------------------------------------------------------
