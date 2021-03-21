@@ -32,7 +32,12 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.quality.Strictness.LENIENT;
 
 /**
  * A class for testing {@link HelloWorld#write(OutputStream)} method.
@@ -66,22 +71,9 @@ class HelloWorld_WriteOutputStreamTest extends HelloWorldTest {
         final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class); // <2>
         final OutputStream stream = Mockito.mock(OutputStream.class); // <3>
         helloWorld.write(stream); // <4>
-        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture()); // <5>
-        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length); // <6>
-        Mockito.verify(stream, Mockito.times(1)).write(arrayCaptor2.capture()); // <7>
-        Assertions.assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue()); // <8>
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(OutputStream)} method returns given {@code stream}.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(stream) returns the stream")
-    @Test
-    void writeStream_ReturnStream_() throws IOException {
-        final OutputStream expected = Mockito.mock(OutputStream.class); // <1>
-        final OutputStream actual = helloWorld.write(expected); // <2>
-        Assertions.assertSame(expected, actual); // <3>
+        verify(helloWorld, times(1)).set(arrayCaptor1.capture()); // <5>
+        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length); // <6>
+        verify(stream, times(1)).write(arrayCaptor2.capture()); // <7>
+        assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue()); // <8>
     }
 }

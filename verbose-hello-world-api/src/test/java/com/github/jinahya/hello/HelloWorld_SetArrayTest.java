@@ -32,6 +32,11 @@ import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.quality.Strictness.LENIENT;
 
 /**
@@ -51,7 +56,7 @@ class HelloWorld_SetArrayTest extends HelloWorldTest {
     @DisplayName("set(null) throws NullPointerException")
     @Test
     void setArray_NullPointerException_ArrayIsNull() {
-        Assertions.assertThrows(NullPointerException.class, () -> helloWorld.set(null));
+        assertThrows(NullPointerException.class, () -> helloWorld.set(null));
     }
 
     /**
@@ -62,7 +67,7 @@ class HelloWorld_SetArrayTest extends HelloWorldTest {
     @Test
     void setArray_IndexOutOfBoundsException_ArrayLengthIsLessThanBYTES() {
         final byte[] array = new byte[ThreadLocalRandom.current().nextInt(0, HelloWorld.BYTES)];
-        Assertions.assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
+        assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
     }
 
     /**
@@ -76,19 +81,8 @@ class HelloWorld_SetArrayTest extends HelloWorldTest {
         final ArgumentCaptor<Integer> indexCaptor = ArgumentCaptor.forClass(int.class); // <2>
         final byte[] array = new byte[HelloWorld.BYTES]; // <3>
         helloWorld.set(array); // <4>
-        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor.capture(), indexCaptor.capture()); // <5>
-        Assertions.assertSame(array, arrayCaptor.getValue()); // <6>
-        Assertions.assertEquals(0, indexCaptor.getValue()); // <7>
-    }
-
-    /**
-     * Asserts {@link HelloWorld#set(byte[])} method returns given {@code array}.
-     */
-    @DisplayName("set(array) returns array")
-    @Test
-    void setArray_ReturnArray_() {
-        final byte[] expected = new byte[HelloWorld.BYTES];
-        final byte[] actual = helloWorld.set(expected);
-        Assertions.assertSame(expected, actual);
+        verify(helloWorld, times(1)).set(arrayCaptor.capture(), indexCaptor.capture()); // <5>
+        assertSame(array, arrayCaptor.getValue()); // <6>
+        assertEquals(0, indexCaptor.getValue()); // <7>
     }
 }

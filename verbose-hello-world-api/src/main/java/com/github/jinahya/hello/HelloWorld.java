@@ -40,7 +40,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static java.nio.ByteBuffer.allocate;
-import static java.nio.ByteBuffer.allocateDirect;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -93,7 +92,7 @@ public interface HelloWorld {
      * and {@code 0}.
      * @see #set(byte[], int)
      */
-    default byte[] set(final byte[] array) {
+    default void set(final byte[] array) {
         if (array == null) {
             throw new NullPointerException("array is null");
         }
@@ -101,7 +100,6 @@ public interface HelloWorld {
             throw new IndexOutOfBoundsException("array.length(" + array.length + ") < " + BYTES);
         }
         set(array, 0);
-        return array;
     }
 
     /**
@@ -123,7 +121,6 @@ public interface HelloWorld {
         final byte[] array = new byte[BYTES];
         set(array);
         stream.write(array);
-        return stream;
     }
 
     /**
@@ -148,28 +145,24 @@ public interface HelloWorld {
         } finally {
             stream.close();
         }
-        return file;
     }
 
     /**
      * Sends <a href="#hello-world-bytes">hello-world-bytes</a> through specified socket.
      *
-     * @param socket the socket to which bytes are sent.
-     * @param <T>    socket type parameter
-     * @return given {@code socket}.
+     * @param socket the socket through which bytes are sent.
      * @throws NullPointerException if {@code socket} is {@code null}.
      * @throws IOException          if an I/O error occurs.
      * @implSpec The implementation in this class invokes {@link #write(OutputStream)} method with {@link
-     * Socket#getOutputStream() socket.outputStream} and returns {@code socket}.
+     * Socket#getOutputStream() socket.outputStream}.
      * @see Socket#getOutputStream()
      * @see #write(OutputStream)
      */
-    default <T extends Socket> T send(final T socket) throws IOException {
+    default void send(final Socket socket) throws IOException {
         if (socket == null) {
             throw new NullPointerException("socket is null");
         }
         write(socket.getOutputStream());
-        return socket;
     }
 
     /**
@@ -191,7 +184,6 @@ public interface HelloWorld {
         final byte[] array = new byte[BYTES];
         set(array);
         data.write(array);
-        return data;
     }
 
     /**
