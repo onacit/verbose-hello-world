@@ -39,7 +39,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -346,36 +345,68 @@ public interface HelloWorld {
     /**
      * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
-     * @param channel  the channel to which bytes are written.
-     * @param executor an executor for running a task.
+     * @param channel the channel to which bytes are written.
      * @return a completable future representing the result of the operation.
      */
-    default CompletableFuture<Void> writeAsync(final AsynchronousByteChannel channel, final Executor executor) {
+    default CompletableFuture<Void> writeAsync(final AsynchronousByteChannel channel) {
         if (channel == null) {
             throw new NullPointerException("channel is null");
-        }
-        if (executor == null) {
-            throw new NullPointerException("executor is null");
         }
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
         final CompletableFuture<Void> future = new CompletableFuture<>();
-        channel.<Void>write(
+//        channel.<Void>write(
+//                buffer,
+//                null,
+//                new CompletionHandler<Integer, Void>() {
+//                    @Override
+//                    public void completed(final Integer result, final Void attachment) {
+//                        if (!buffer.hasRemaining()) {
+//                            future.complete(null);
+//                        } else {
+//                            channel.write(buffer, attachment, this);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void failed(final Throwable exc, final Void attachment) {
+//                        future.completeExceptionally(exc);
+//                    }
+//                });
+//        channel.<ByteBuffer>write(
+//                buffer,
+//                buffer,
+//                new CompletionHandler<Integer, ByteBuffer>() {
+//                    @Override
+//                    public void completed(final Integer result, final ByteBuffer attachment) {
+//                        if (!attachment.hasRemaining()) {
+//                            future.complete(null);
+//                        } else {
+//                            channel.write(attachment, attachment, this);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void failed(final Throwable exc, final ByteBuffer attachment) {
+//                        future.completeExceptionally(exc);
+//                    }
+//                });
+        channel.<AsynchronousByteChannel>write(
                 buffer,
-                null,
-                new CompletionHandler<Integer, Void>() {
+                channel,
+                new CompletionHandler<Integer, AsynchronousByteChannel>() {
                     @Override
-                    public void completed(final Integer result, final Void attachment) {
+                    public void completed(final Integer result, final AsynchronousByteChannel attachment) {
                         if (!buffer.hasRemaining()) {
                             future.complete(null);
                         } else {
-                            channel.write(buffer, attachment, this);
+                            attachment.write(buffer, attachment, this);
                         }
                     }
 
                     @Override
-                    public void failed(final Throwable exc, final Void attachment) {
+                    public void failed(final Throwable exc, final AsynchronousByteChannel attachment) {
                         future.completeExceptionally(exc);
                     }
                 });
