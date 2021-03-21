@@ -33,12 +33,12 @@ import static java.io.File.createTempFile;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * A class for unit-testing {@link HelloWorld} interface.
+ * A class for testing {@link HelloWorld#append(File)} method.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
 @Slf4j
-class HelloWorld_AppendFileTest extends HelloWorldTest {
+class HelloWorld_Append_FileTest extends HelloWorldTest {
 
     /**
      * Asserts {@link HelloWorld#append(File)} method throws a {@link NullPointerException} when {@code file} argument
@@ -51,12 +51,13 @@ class HelloWorld_AppendFileTest extends HelloWorldTest {
     }
 
     /**
-     * Asserts {@link HelloWorld#append(File)} method invokes {@link HelloWorld#writeAsync(OutputStream)} method.
+     * Asserts {@link HelloWorld#append(File)} method invokes {@link HelloWorld#write(OutputStream)} method and asserts
+     * {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes are written to the {@code file}.
      *
      * @param tempDir a temporary directory to test with.
      * @throws IOException if an I/O error occurs.
      */
-    @DisplayName("append(file) invokes write(stream)")
+    @DisplayName("append(file) invokes write(stream) and 12 bytes are written")
     @Test
     void appendFile_InvokeWriteStream_(final @TempDir File tempDir) throws IOException {
         final File file = createTempFile("tmp", null, tempDir);

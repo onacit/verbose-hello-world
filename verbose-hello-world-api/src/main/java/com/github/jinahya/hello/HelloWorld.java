@@ -43,6 +43,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import static java.nio.ByteBuffer.allocate;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An interface for generating <a href="#hello-world-bytes">hello-world-bytes</a> to various targets.
@@ -111,7 +112,7 @@ public interface HelloWorld {
      * @see #set(byte[])
      * @see OutputStream#write(byte[])
      */
-    default void writeAsync(final OutputStream stream) throws IOException {
+    default void write(final OutputStream stream) throws IOException {
         if (stream == null) {
             throw new NullPointerException("stream is null");
         }
@@ -125,9 +126,9 @@ public interface HelloWorld {
      * @throws NullPointerException if {@code file} is {@code null}.
      * @throws IOException          if an I/O error occurs.
      * @implSpec The implementation in this class creates a {@link FileOutputStream} from {@code file} as append mode
-     * and invokes {@link #writeAsync(OutputStream)} method with the stream.
+     * and invokes {@link #write(OutputStream)} method with the stream.
      * @see java.io.FileOutputStream#FileOutputStream(File, boolean)
-     * @see #writeAsync(OutputStream)
+     * @see #write(OutputStream)
      */
     default void append(final File file) throws IOException {
         if (file == null) {
@@ -142,10 +143,10 @@ public interface HelloWorld {
      * @param socket the socket through which bytes are sent.
      * @throws NullPointerException if {@code socket} is {@code null}.
      * @throws IOException          if an I/O error occurs.
-     * @implSpec The implementation in this class invokes {@link #writeAsync(OutputStream)} method with {@link
+     * @implSpec The implementation in this class invokes {@link #write(OutputStream)} method with {@link
      * Socket#getOutputStream() socket.outputStream}.
      * @see Socket#getOutputStream()
-     * @see #writeAsync(OutputStream)
+     * @see #write(OutputStream)
      */
     default void send(final Socket socket) throws IOException {
         if (socket == null) {
@@ -346,12 +347,15 @@ public interface HelloWorld {
      * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified channel.
      *
      * @param channel the channel to which bytes are written.
-     * @param executor an executor for creating a completable future.
+     * @param executor an executor for running a task.
      * @return a completable future representing the result of the operation.
      */
     default CompletableFuture<Void> writeAsync(final AsynchronousByteChannel channel, final Executor executor) {
         if (channel == null) {
             throw new NullPointerException("channel is null");
+        }
+        if (executor == null) {
+            throw new NullPointerException("executor is null");
         }
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);

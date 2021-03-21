@@ -45,7 +45,7 @@ import static org.mockito.quality.Strictness.LENIENT;
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
 @Slf4j
-class HelloWorld_SetArrayTest extends HelloWorldTest {
+class HelloWorld_Set_ArrayTest extends HelloWorldTest {
 
     /**
      * Asserts {@link HelloWorld#set(byte[])} method throws a {@link NullPointerException} when the {@code array}
