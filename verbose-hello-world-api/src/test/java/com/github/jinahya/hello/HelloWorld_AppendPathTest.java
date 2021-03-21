@@ -33,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.file.Files.createTempFile;
+import static java.nio.file.Files.size;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -68,12 +69,12 @@ class HelloWorld_AppendPathTest extends HelloWorldTest {
     @Test
     void appendPath_InvokeWriteChannel12BytesWritten_(final @TempDir Path tempDir) throws IOException {
         final Path path = createTempFile(tempDir, null, null);
-        final long size = Files.size(path);
+        final long size = size(path);
         helloWorld.append(path);
         final ArgumentCaptor<WritableByteChannel> channelCaptor = ArgumentCaptor.forClass(WritableByteChannel.class);
         verify(helloWorld, times(1)).write(channelCaptor.capture());
         final WritableByteChannel channel = channelCaptor.getValue();
         assertTrue(channel instanceof FileChannel);
-        assertEquals(size + HelloWorld.BYTES, Files.size(path));
+        assertEquals(size + HelloWorld.BYTES, size(path));
     }
 }
