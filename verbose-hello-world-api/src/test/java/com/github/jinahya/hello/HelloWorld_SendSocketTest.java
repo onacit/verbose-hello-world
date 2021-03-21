@@ -39,7 +39,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.mockito.quality.Strictness.LENIENT;
 
 /**
@@ -74,7 +73,6 @@ class HelloWorld_SendSocketTest extends HelloWorldTest {
         final Socket socket = spy(new Socket());              // <1>
         final OutputStream stream = mock(OutputStream.class); // <2>
         doReturn(stream).when(socket).getOutputStream();
-        //when(socket.getOutputStream()).thenReturn(stream);    // <3>
         helloWorld.send(socket);                              // <1>
         verify(socket, times(1)).getOutputStream();           // <2>
         final ArgumentCaptor<OutputStream> streamCaptor
