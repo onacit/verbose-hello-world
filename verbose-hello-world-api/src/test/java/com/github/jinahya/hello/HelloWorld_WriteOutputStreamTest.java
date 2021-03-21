@@ -23,11 +23,7 @@ package com.github.jinahya.hello;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -35,9 +31,9 @@ import java.io.OutputStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.quality.Strictness.LENIENT;
 
 /**
  * A class for testing {@link HelloWorld#write(OutputStream)} method.
@@ -67,13 +63,15 @@ class HelloWorld_WriteOutputStreamTest extends HelloWorldTest {
     @DisplayName("write(stream) invokes set(byte[BYTES]) and writes the array to the stream")
     @Test
     void writeStream_InvokeSetArrayAndWriteArrayToStream_() throws IOException {
+        final OutputStream stream = mock(OutputStream.class); // <1>
+        helloWorld.write(stream); // <2>
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class); // <1>
-        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class); // <2>
-        final OutputStream stream = Mockito.mock(OutputStream.class); // <3>
-        helloWorld.write(stream); // <4>
-        verify(helloWorld, times(1)).set(arrayCaptor1.capture()); // <5>
-        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length); // <6>
-        verify(stream, times(1)).write(arrayCaptor2.capture()); // <7>
-        assertSame(arrayCaptor2.getValue(), arrayCaptor1.getValue()); // <8>
+        verify(helloWorld, times(1)).set(arrayCaptor1.capture()); // <2>
+        final byte[] array1 = arrayCaptor1.getValue(); // <3>
+        assertEquals(HelloWorld.BYTES, array1.length); // <4>
+        final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class); // <1>
+        verify(stream, times(1)).write(arrayCaptor2.capture()); // <2>
+        final byte[] array2 = arrayCaptor2.getValue(); // <3>
+        assertSame(array2, array1); // <4>
     }
 }

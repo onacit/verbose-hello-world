@@ -44,8 +44,6 @@ import static org.mockito.quality.Strictness.LENIENT;
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
-@MockitoSettings(strictness = LENIENT)
-@ExtendWith({MockitoExtension.class})
 @Slf4j
 class HelloWorld_SetArrayTest extends HelloWorldTest {
 
