@@ -360,8 +360,8 @@ public interface HelloWorld {
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
-        final CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
-        channel.write(
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        channel.<Void>write(
                 buffer,
                 null,
                 new CompletionHandler<Integer, Void>() {
