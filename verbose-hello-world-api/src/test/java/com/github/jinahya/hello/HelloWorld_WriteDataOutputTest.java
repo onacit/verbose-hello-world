@@ -36,7 +36,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * A class for testing {@link HelloWorld#writeAsync(DataOutput)} method.
+ * A class for testing {@link HelloWorld#write(DataOutput)} method.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
@@ -44,17 +44,17 @@ import static org.mockito.Mockito.verify;
 class HelloWorld_WriteDataOutputTest extends HelloWorldTest {
 
     /**
-     * Asserts {@link HelloWorld#writeAsync(DataOutput)} method throws a {@link NullPointerException} when {@code data}
+     * Asserts {@link HelloWorld#write(DataOutput)} method throws a {@link NullPointerException} when {@code data}
      * argument is {@code null}.
      */
     @DisplayName("write(data) method throws NullPointerException when data is null")
     @Test
     void writeData_NullPointerException_DataIsNull() {
-        assertThrows(NullPointerException.class, () -> helloWorld.writeAsync((DataOutput) null));
+        assertThrows(NullPointerException.class, () -> helloWorld.write((DataOutput) null));
     }
 
     /**
-     * Asserts {@link HelloWorld#writeAsync(DataOutput)} method invokes {@link HelloWorld#set(byte[])} method with an array
+     * Asserts {@link HelloWorld#write(DataOutput)} method invokes {@link HelloWorld#set(byte[])} method with an array
      * of {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and writes the array to specified data output.
      *
      * @throws IOException if an I/O error occurs.
