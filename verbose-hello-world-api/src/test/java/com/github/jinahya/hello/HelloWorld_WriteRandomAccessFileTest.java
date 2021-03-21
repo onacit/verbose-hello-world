@@ -68,6 +68,8 @@ class HelloWorld_WriteRandomAccessFileTest extends HelloWorldTest {
     @Test
     void writeFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
         try (RandomAccessFile file = spy(new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw"))) {
+            assert file.length() == 0L;
+            assert file.getFilePointer() == 0L;
             helloWorld.write(file); // <1>
             final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class); // <1>
             verify(helloWorld, times(1)).set(arrayCaptor1.capture()); // <2>

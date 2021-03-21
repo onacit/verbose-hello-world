@@ -69,6 +69,8 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
     @Test
     void appendFile_InvokeSetArrayWriteArrayToFile_(final @TempDir File tempDir) throws IOException {
         try (RandomAccessFile file = spy(new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw"))) { // <1>
+            assert file.length() == 0L;
+            assert file.getFilePointer() == 0L;
             final long length = file.length();
             helloWorld.append(file);
             verify(file, times(1)).seek(length);
