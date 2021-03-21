@@ -206,7 +206,6 @@ public interface HelloWorld {
         final byte[] array = new byte[BYTES];
         set(array);
         file.write(array);
-        return file;
     }
 
     /**
@@ -228,7 +227,6 @@ public interface HelloWorld {
         }
         file.seek(file.length());
         write(file);
-        return file;
     }
 
     // -----------------------------------------------------------------------------------------------------------------

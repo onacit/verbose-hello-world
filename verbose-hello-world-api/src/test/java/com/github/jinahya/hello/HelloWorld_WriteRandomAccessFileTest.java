@@ -21,12 +21,10 @@ package com.github.jinahya.hello;
  */
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +34,6 @@ import static java.io.File.createTempFile;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -81,23 +78,5 @@ class HelloWorld_WriteRandomAccessFileTest extends HelloWorldTest {
             final byte[] array2 = arrayCaptor2.getValue();
             assertSame(array1, array2); // <1>
         }
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(RandomAccessFile)} method returns specified {@code file}.
-     *
-     * @param tempDir a temporary directory to test with.
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(file) returns file")
-    @Test
-    void writeFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
-        try (RandomAccessFile expected = new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw")) {
-            final RandomAccessFile actual = helloWorld.write(expected);
-            assertSame(expected, actual);
-        }
-        final RandomAccessFile expected = mock(RandomAccessFile.class);
-        final RandomAccessFile actual = helloWorld.write(expected);
-        assertSame(expected, actual);
     }
 }

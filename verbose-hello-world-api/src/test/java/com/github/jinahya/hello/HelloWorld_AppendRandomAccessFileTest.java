@@ -78,19 +78,4 @@ class HelloWorld_AppendRandomAccessFileTest extends HelloWorldTest {
             assertEquals(length + HelloWorld.BYTES, file.length());
         }
     }
-
-    /**
-     * Asserts {@link HelloWorld#append(RandomAccessFile)} method returns given {@code file}.
-     *
-     * @param tempDir a temporary directory to test with.
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("append(file) returns file")
-    @Test
-    void appendFile_ReturnFile_(final @TempDir File tempDir) throws IOException {
-        try (RandomAccessFile expected = new RandomAccessFile(createTempFile("tmp", null, tempDir), "rw")) {
-            final RandomAccessFile actual = helloWorld.append(expected);
-            assertSame(expected, actual);
-        }
-    }
 }
