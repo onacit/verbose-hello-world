@@ -21,23 +21,16 @@ package com.github.jinahya.hello;
  */
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
 
-import java.util.concurrent.ThreadLocalRandom;
-
+import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.quality.Strictness.LENIENT;
 
 /**
  * A class for unit-testing {@link HelloWorld#set(byte[])} method.
@@ -45,7 +38,7 @@ import static org.mockito.quality.Strictness.LENIENT;
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
 @Slf4j
-class HelloWorld_Set_ArrayTest extends HelloWorldTest {
+class HelloWorld_Set_Array_Test extends HelloWorldTest {
 
     /**
      * Asserts {@link HelloWorld#set(byte[])} method throws a {@link NullPointerException} when the {@code array}
@@ -64,7 +57,7 @@ class HelloWorld_Set_ArrayTest extends HelloWorldTest {
     @DisplayName("set(array) throws IndexOutOfBoundsException when array.length is less than BYTES")
     @Test
     void setArray_IndexOutOfBoundsException_ArrayLengthIsLessThanBYTES() {
-        final byte[] array = new byte[ThreadLocalRandom.current().nextInt(0, HelloWorld.BYTES)];
+        final byte[] array = new byte[current().nextInt(0, HelloWorld.BYTES)];
         assertThrows(IndexOutOfBoundsException.class, () -> helloWorld.set(array));
     }
 

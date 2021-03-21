@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verify;
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
 @Slf4j
-class HelloWorld_Put_BufferTest extends HelloWorldTest {
+class HelloWorld_Put_Buffer_Test extends HelloWorldTest {
 
     /**
      * Returns a stream of byte buffers which each remaining is less than {@link HelloWorld#BYTES}.

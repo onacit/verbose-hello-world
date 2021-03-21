@@ -45,7 +45,7 @@ import static org.mockito.Mockito.verify;
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
 @Slf4j
-class HelloWorld_Append_PathTest extends HelloWorldTest {
+class HelloWorld_Append_Path_Test extends HelloWorldTest {
 
     /**
      * Asserts {@link HelloWorld#append(Path)} method throws a {@link NullPointerException} when the {@code path}
