@@ -21,33 +21,35 @@ package com.github.jinahya.hello;
  */
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
 
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.nio.ByteBuffer.allocate;
+import static java.nio.ByteBuffer.allocateDirect;
+import static java.nio.ByteBuffer.wrap;
 import static java.util.concurrent.ThreadLocalRandom.current;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.quality.Strictness.LENIENT;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
- * A class for unit-testing {@link HelloWorld} interface.
+ * A class for testing {@link HelloWorld#put(ByteBuffer)} method.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
-@MockitoSettings(strictness = LENIENT)
-@ExtendWith({MockitoExtension.class})
 @Slf4j
 class HelloWorld_PutBufferTest extends HelloWorldTest {
 
@@ -58,11 +60,11 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
      */
     private static Stream<ByteBuffer> buffersOfNotEnoughRemaining() {
         return Stream
-                .of(ByteBuffer.wrap(new byte[current().nextInt(HelloWorld.BYTES)]),
-                    ByteBuffer.allocate(current().nextInt(HelloWorld.BYTES)),
-                    ByteBuffer.allocateDirect(current().nextInt(HelloWorld.BYTES)))
+                .of(wrap(new byte[current().nextInt(HelloWorld.BYTES)]),
+                    allocate(current().nextInt(HelloWorld.BYTES)),
+                    allocateDirect(current().nextInt(HelloWorld.BYTES)))
                 .peek(b -> {
-                    Assertions.assertTrue(b.remaining() < HelloWorld.BYTES);
+                    assertTrue(b.remaining() < HelloWorld.BYTES);
                 });
     }
 
@@ -78,20 +80,21 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
                         final byte[] array = new byte[HelloWorld.BYTES * 3];
                         final int offset = current().nextInt(HelloWorld.BYTES);
                         final int length = current().nextInt(HelloWorld.BYTES, array.length - offset);
-                        return ByteBuffer.wrap(array, offset, length);
+                        return wrap(array, offset, length);
                     } else {
-                        final ByteBuffer buffer = ByteBuffer.allocate(HelloWorld.BYTES * 3);
-                        Assertions.assertEquals(0, buffer.position());
-                        Assertions.assertEquals(buffer.capacity(), buffer.limit());
+                        final ByteBuffer buffer = allocate(HelloWorld.BYTES * 3);
+                        assertEquals(0, buffer.position());
+                        assertEquals(buffer.capacity(), buffer.limit());
                         buffer.position(current().nextInt(HelloWorld.BYTES));
                         buffer.limit(current().nextInt(buffer.position() + HelloWorld.BYTES, buffer.limit()));
                         return buffer;
                     }
                 })
                 .peek(b -> {
-                    Assertions.assertTrue(b.remaining() >= HelloWorld.BYTES);
-                    Assertions.assertTrue(b.hasArray());
-                });
+                    assertTrue(b.remaining() >= HelloWorld.BYTES);
+                    assertTrue(b.hasArray());
+                })
+                .map(Mockito::spy);
     }
 
     /**
@@ -102,18 +105,19 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
     private static Stream<ByteBuffer> buffersHasNoBackingArray() {
         return IntStream.range(0, 8)
                 .mapToObj(i -> {
-                    final ByteBuffer buffer = ByteBuffer.allocateDirect(HelloWorld.BYTES * 3);
-                    Assertions.assertEquals(0, buffer.position());
-                    Assertions.assertEquals(buffer.capacity(), buffer.limit());
-                    Assertions.assertTrue(buffer.remaining() >= HelloWorld.BYTES);
+                    final ByteBuffer buffer = allocateDirect(HelloWorld.BYTES * 3);
+                    assertEquals(0, buffer.position());
+                    assertEquals(buffer.capacity(), buffer.limit());
+                    assertTrue(buffer.remaining() >= HelloWorld.BYTES);
                     buffer.position(current().nextInt(HelloWorld.BYTES));
                     buffer.limit(current().nextInt(buffer.position() + HelloWorld.BYTES, buffer.limit()));
                     return buffer;
                 })
                 .peek(b -> {
-                    Assertions.assertTrue(b.remaining() >= HelloWorld.BYTES);
-                    Assertions.assertFalse(b.hasArray());
-                });
+                    assertTrue(b.remaining() >= HelloWorld.BYTES);
+                    assertFalse(b.hasArray());
+                })
+                .map(Mockito::spy);
     }
 
     /**
@@ -158,12 +162,12 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
         helloWorld.put(buffer);
         final ArgumentCaptor<byte[]> arrayCaptor = ArgumentCaptor.forClass(byte[].class);
         final ArgumentCaptor<Integer> indexCaptor = ArgumentCaptor.forClass(int.class);
-        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor.capture(), indexCaptor.capture());
-        Assertions.assertSame(array, arrayCaptor.getValue());
-        Assertions.assertEquals(arrayOffset + position, indexCaptor.getValue());
+        verify(helloWorld, times(1)).set(arrayCaptor.capture(), indexCaptor.capture());
+        assertSame(array, arrayCaptor.getValue());
+        assertEquals(arrayOffset + position, indexCaptor.getValue());
         final ArgumentCaptor<Integer> positionCaptor = ArgumentCaptor.forClass(int.class);
-        Mockito.verify(buffer, Mockito.times(1)).position(positionCaptor.capture());
-        Assertions.assertEquals(position + HelloWorld.BYTES, positionCaptor.getValue());
+        verify(buffer, times(1)).position(positionCaptor.capture());
+        assertEquals(position + HelloWorld.BYTES, positionCaptor.getValue());
     }
 
     /**
@@ -180,10 +184,10 @@ class HelloWorld_PutBufferTest extends HelloWorldTest {
         assert !buffer.hasArray();
         helloWorld.put(buffer);
         final ArgumentCaptor<byte[]> arrayCaptor1 = ArgumentCaptor.forClass(byte[].class);
-        Mockito.verify(helloWorld, Mockito.times(1)).set(arrayCaptor1.capture());
-        Assertions.assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
+        verify(helloWorld, times(1)).set(arrayCaptor1.capture());
+        assertEquals(HelloWorld.BYTES, arrayCaptor1.getValue().length);
         final ArgumentCaptor<byte[]> arrayCaptor2 = ArgumentCaptor.forClass(byte[].class);
-        Mockito.verify(buffer, Mockito.times(1)).put(arrayCaptor2.capture());
-        Assertions.assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
+        verify(buffer, times(1)).put(arrayCaptor2.capture());
+        assertSame(arrayCaptor1.getValue(), arrayCaptor2.getValue());
     }
 }
