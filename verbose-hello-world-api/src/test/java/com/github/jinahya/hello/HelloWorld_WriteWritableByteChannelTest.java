@@ -28,8 +28,6 @@ import org.mockito.ArgumentCaptor;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.LongAccumulator;
 import java.util.concurrent.atomic.LongAdder;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
@@ -46,12 +44,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * A class for unit-testing {@link HelloWorld} interface.
+ * A class for testing {@link HelloWorld#write(WritableByteChannel)} method.
  *
  * @author Jin Kwon &lt;onacit_at_gmail.com&gt;
  */
 @Slf4j
-class HelloWorld_WriteChannelTest extends HelloWorldTest {
+class HelloWorld_WriteWritableByteChannelTest extends HelloWorldTest {
 
     /**
      * Asserts {@link HelloWorld#write(WritableByteChannel)} method throws a {@link NullPointerException} when {@code
@@ -73,17 +71,17 @@ class HelloWorld_WriteChannelTest extends HelloWorldTest {
     @DisplayName("write(channel) invokes put(buffer) and writes the buffer to the channel")
     @Test
     void writeChannel_InvokePutBufferWriteBufferToChannel_() throws IOException {
-        final WritableByteChannel channel = mock(WritableByteChannel.class);
-        final LongAdder adder = new LongAdder();
-        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {
+        final WritableByteChannel channel = mock(WritableByteChannel.class); // <1>
+        final LongAdder writtenSoFar = new LongAdder();                      // <2>
+        when(channel.write(any(ByteBuffer.class))).thenAnswer(i -> {         // <3>
             final ByteBuffer buffer = i.getArgument(0, ByteBuffer.class);
             final int written = current().nextInt(0, buffer.remaining() + 1);
-            adder.add(written);
+            writtenSoFar.add(written);
             buffer.position(buffer.position() + written);
             return written;
         });
         helloWorld.write(channel);
-        assertEquals(HelloWorld.BYTES, adder.sum());
+        assertEquals(HelloWorld.BYTES, writtenSoFar.sum());
         final ArgumentCaptor<ByteBuffer> bufferCaptor1 = ArgumentCaptor.forClass(ByteBuffer.class);
         verify(helloWorld, times(1)).put(bufferCaptor1.capture());
         final ByteBuffer capturedBuffer1 = bufferCaptor1.getValue();
@@ -96,24 +94,5 @@ class HelloWorld_WriteChannelTest extends HelloWorldTest {
         final ByteBuffer capturedBuffer2 = bufferCaptor2.getValue();
         assertSame(capturedBuffer2, capturedBuffer1);
         assertFalse(capturedBuffer2.hasRemaining());
-    }
-
-    /**
-     * Asserts {@link HelloWorld#write(WritableByteChannel)} method returns given channel.
-     *
-     * @throws IOException if an I/O error occurs.
-     */
-    @DisplayName("write(channel) returns channel")
-    @Test
-    void writeChannel_ReturnChannel_() throws IOException {
-        final WritableByteChannel expected = mock(WritableByteChannel.class);
-        when(expected.write(any(ByteBuffer.class))).thenAnswer(i -> {
-            final ByteBuffer buffer = i.getArgument(0, ByteBuffer.class);
-            final int written = buffer.remaining();
-            buffer.position(buffer.limit());
-            return written;
-        });
-        final WritableByteChannel actual = helloWorld.write(expected);
-        assertSame(expected, actual);
     }
 }
