@@ -34,10 +34,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.LongAdder;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -101,5 +103,13 @@ class HelloWorld_WriteAsync_AsynchronousFileChannel_Long_Test extends HelloWorld
         verify(helloWorld, times(1)).put(bufferCaptor.capture());
         final ByteBuffer buffer = bufferCaptor.getValue();
         final Void got = future.get();
+        final ArgumentCaptor<ByteBuffer> srcCaptor = forClass(ByteBuffer.class);
+        final ArgumentCaptor<Long> positionCaptor = forClass(long.class);
+        final ArgumentCaptor<Object> attachmentCaptor = forClass(Object.class);
+        @SuppressWarnings({"unchecked"})
+        final ArgumentCaptor<CompletionHandler<Integer, Object>> handlerCaptor = forClass(CompletionHandler.class);
+        verify(channel, atLeastOnce()).write(srcCaptor.capture(), positionCaptor.capture(),
+                                             attachmentCaptor.capture(), handlerCaptor.capture());
+        assertEquals(HelloWorld.BYTES, writtenSoFar.sum());
     }
 }

@@ -486,6 +486,7 @@ public interface HelloWorld {
                           public void completed(final Integer result, final Object attachment) {
                               if (!buffer.hasRemaining()) {
                                   future.complete(null);
+                                  return;
                               }
                               channel.write(buffer, position + buffer.position(), attachment, this);
                           }
