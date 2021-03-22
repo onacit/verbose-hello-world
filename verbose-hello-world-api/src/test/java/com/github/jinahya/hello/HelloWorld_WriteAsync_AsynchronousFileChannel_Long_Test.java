@@ -76,6 +76,9 @@ class HelloWorld_WriteAsync_AsynchronousFileChannel_Long_Test extends HelloWorld
     /**
      * Asserts {@link HelloWorld#writeAsync(AsynchronousFileChannel, long)} method invokes {@link
      * HelloWorld#put(ByteBuffer)} and writes the buffer to {@code channel}.
+     *
+     * @throws InterruptedException if interrupted while working.
+     * @throws ExecutionException   if failed to work.
      */
     @DisplayName("write(channel, long) invokes put(buffer) writes the buffer to channel")
     @Test
