@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.AsynchronousFileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -37,6 +38,8 @@ import java.util.stream.Collectors;
 
 import static java.nio.channels.AsynchronousFileChannel.open;
 import static java.nio.file.Files.createTempFile;
+import static java.nio.file.Files.size;
+import static java.nio.file.StandardOpenOption.APPEND;
 import static java.nio.file.StandardOpenOption.WRITE;
 import static java.util.concurrent.ThreadLocalRandom.current;
 import static java.util.stream.Collectors.toList;
@@ -81,6 +84,7 @@ class HelloWorld_Write_AsynchronousFileChannel_Test extends HelloWorldTest {
     void write_InvokePutBufferWriteBufferToChannel_(final @TempDir Path tempDir)
             throws IOException, ExecutionException, InterruptedException {
         final Path file = createTempFile(tempDir, null, null);
+        final long size = size(file);
         try (AsynchronousFileChannel channel = spy(open(file, WRITE))) { // APPEND not allowed!
             final long position = current().nextLong(128L);
             helloWorld.write(channel, position);
@@ -100,5 +104,6 @@ class HelloWorld_Write_AsynchronousFileChannel_Test extends HelloWorldTest {
             assertEquals(positions, positions.stream().sorted().collect(toList()));
             channel.force(false);
         }
+        assertEquals(size + HelloWorld.BYTES, size(file));
     }
 }
