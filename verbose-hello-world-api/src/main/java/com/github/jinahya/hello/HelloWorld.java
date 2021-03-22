@@ -97,7 +97,13 @@ public interface HelloWorld {
      * @see #set(byte[], int)
      */
     default void set(final byte[] array) {
-        // TODO: implement!
+        if (array == null) {
+            throw new NullPointerException("array is null");
+        }
+        if (array.length < BYTES) {
+            throw new IndexOutOfBoundsException("array.length(" + array.length + ") < " + BYTES);
+        }
+        set(array, 0);
     }
 
     /**
@@ -116,7 +122,9 @@ public interface HelloWorld {
         if (stream == null) {
             throw new NullPointerException("stream is null");
         }
-        // TODO: implement!
+        final byte[] array = new byte[BYTES];
+        set(array);
+        stream.write(array);
     }
 
     /**
@@ -134,7 +142,13 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        // TODO: implement!
+        final OutputStream stream = new FileOutputStream(file, true);
+        try {
+            write(stream);
+            stream.flush();
+        } finally {
+            stream.close();
+        }
     }
 
     /**
@@ -152,7 +166,7 @@ public interface HelloWorld {
         if (socket == null) {
             throw new NullPointerException("socket is null");
         }
-        // TODO: implement!
+        write(socket.getOutputStream());
     }
 
     /**
@@ -171,7 +185,9 @@ public interface HelloWorld {
         if (data == null) {
             throw new NullPointerException("data is null");
         }
-        // TODO: implement!
+        final byte[] array = new byte[BYTES];
+        set(array);
+        data.write(array);
     }
 
     /**
@@ -191,7 +207,9 @@ public interface HelloWorld {
         if (file == null) {
             throw new NullPointerException("file is null");
         }
-        // TODO: implement!
+        final byte[] array = new byte[BYTES];
+        set(array);
+        file.write(array);
     }
 
     /**

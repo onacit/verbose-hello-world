@@ -97,8 +97,7 @@ class HelloWorld_Write_AsynchronousFileChannel_Test extends HelloWorldTest {
         final Path file = createTempFile(tempDir, null, null);
         final long size = size(file);
         try (AsynchronousFileChannel channel = spy(open(file, WRITE))) { // APPEND not allowed!
-            final long position = current().nextLong(128L);
-            helloWorld.write(channel, position);
+            helloWorld.write(channel, 0L);
             final ArgumentCaptor<ByteBuffer> bufferCaptor = forClass(ByteBuffer.class);
             verify(helloWorld, times(1)).put(bufferCaptor.capture());
             final ByteBuffer buffer = bufferCaptor.getValue();
@@ -110,7 +109,7 @@ class HelloWorld_Write_AsynchronousFileChannel_Test extends HelloWorldTest {
             });
             final List<Long> positions = positionCaptor.getAllValues();
             positions.forEach(p -> {
-                assertTrue(p >= position);
+                assertTrue(p >= 0L);
             });
             assertEquals(positions, positions.stream().sorted().collect(toList()));
             channel.force(false);
