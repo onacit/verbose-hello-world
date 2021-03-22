@@ -98,6 +98,7 @@ class HelloWorld_Write_AsynchronousFileChannel_Test extends HelloWorldTest {
                 assertTrue(p >= position);
             });
             assertEquals(positions, positions.stream().sorted().collect(toList()));
+            channel.force(false);
         }
     }
 }
