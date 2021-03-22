@@ -26,13 +26,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.CompletionHandler;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
@@ -44,7 +43,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import static com.github.jinahya.hello.FutureInvocationHandler.newProxyInstanceFor;
-import static java.lang.reflect.Proxy.newProxyInstance;
 import static java.nio.ByteBuffer.allocate;
 
 /**
@@ -479,7 +477,24 @@ public interface HelloWorld {
         final ByteBuffer buffer = allocate(BYTES);
         put(buffer);
         buffer.flip();
-        // TODO: implement!
-        return null;
+        final CompletableFuture<Void> future = new CompletableFuture<>();
+        channel.write(buffer,
+                      position,
+                      null,
+                      new CompletionHandler<Integer, Object>() {
+                          @Override
+                          public void completed(final Integer result, final Object attachment) {
+                              if (!buffer.hasRemaining()) {
+                                  future.complete(null);
+                              }
+                              channel.write(buffer, position + buffer.position(), attachment, this);
+                          }
+
+                          @Override
+                          public void failed(final Throwable exc, final Object attachment) {
+                              future.completeExceptionally(exc);
+                          }
+                      });
+        return future;
     }
 }

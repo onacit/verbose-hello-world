@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -78,7 +79,7 @@ class HelloWorld_WriteAsync_AsynchronousFileChannel_Long_Test extends HelloWorld
      */
     @DisplayName("write(channel, long) invokes put(buffer) writes the buffer to channel")
     @Test
-    void writeAsync_InvokePutBufferWriteBufferToChannel_() {
+    void writeAsync_InvokePutBufferWriteBufferToChannel_() throws InterruptedException, ExecutionException {
         final AsynchronousFileChannel channel = mock(AsynchronousFileChannel.class);
         final LongAdder writtenSoFar = new LongAdder();
         doAnswer(i -> {
@@ -96,5 +97,6 @@ class HelloWorld_WriteAsync_AsynchronousFileChannel_Long_Test extends HelloWorld
         final ArgumentCaptor<ByteBuffer> bufferCaptor = forClass(ByteBuffer.class);
         verify(helloWorld, times(1)).put(bufferCaptor.capture());
         final ByteBuffer buffer = bufferCaptor.getValue();
+        final Void got = future.get();
     }
 }
