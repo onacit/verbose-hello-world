@@ -32,6 +32,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousByteChannel;
 import java.nio.channels.CompletionHandler;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.OpenOption;
@@ -277,6 +278,8 @@ public interface HelloWorld {
         }
     }
 
+    // ----------------------------------------------------------------------------------------- AsynchronousByteChannel
+
     /**
      * Writes, synchronously, the <a href="#hello-world-bytes">hello-world-bytes</a> to specified asynchronous byte
      * channel.
@@ -411,5 +414,36 @@ public interface HelloWorld {
                     }
                 });
         return future;
+    }
+
+    // ----------------------------------------------------------------------------------------- AsynchronousFileChannel
+
+    /**
+     * Writes the <a href="#hello-world-bytes">hello-world-bytes</a> to specified asynchronous file channel, starting at
+     * the given file position.
+     *
+     * @param channel  the asynchronous file channel to which bytes are written.
+     * @param position the file position at which the transfer is to begin; must be non-negative.
+     * @throws IOException          if an I/O error occurs.
+     * @throws InterruptedException if interrupted while working.
+     * @throws ExecutionException   if failed to execute.
+     * @implSpec The implementation in this class invokes invokes {@link #put(ByteBuffer)} with a bytes buffer of
+     * {@value com.github.jinahya.hello.HelloWorld#BYTES} bytes and invokes {@link AsynchronousFileChannel#write(ByteBuffer,
+     * long)} method with the buffer and {@code position}.
+     * @see #put(ByteBuffer)
+     * @see AsynchronousFileChannel#write(ByteBuffer, long)
+     */
+    default void write(final AsynchronousFileChannel channel, long position)
+            throws IOException, InterruptedException, ExecutionException {
+        if (channel == null) {
+            throw new NullPointerException("channel is null");
+        }
+        final ByteBuffer buffer = allocate(BYTES);
+        put(buffer);
+        buffer.flip();
+        while (buffer.hasRemaining()) {
+            final Future<Integer> future = channel.write(buffer, position);
+            position += future.get();
+        }
     }
 }
