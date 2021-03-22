@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.LongAdder;
 
 import static java.util.concurrent.ThreadLocalRandom.current;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
@@ -103,6 +104,7 @@ class HelloWorld_WriteAsync_AsynchronousFileChannel_Long_Test extends HelloWorld
         verify(helloWorld, times(1)).put(bufferCaptor.capture());
         final ByteBuffer buffer = bufferCaptor.getValue();
         final Void got = future.get();
+        assertNull(got);
         final ArgumentCaptor<ByteBuffer> srcCaptor = forClass(ByteBuffer.class);
         final ArgumentCaptor<Long> positionCaptor = forClass(long.class);
         final ArgumentCaptor<Object> attachmentCaptor = forClass(Object.class);
